@@ -70,6 +70,14 @@
         />
       {/if}
 
+      {#if info.buildDate}
+        <ServerAboutItem
+          id="build-date"
+          title={$t('build_date')}
+          version={DateTime.fromISO(info.buildDate).toRelative({ locale: $locale }) ?? undefined}
+        />
+      {/if}
+
       <div class="col-span-full">
         <Label size="small" color="primary" for="version-history">{$t('version_history')}</Label>
         <ul id="version-history" class="list-none">

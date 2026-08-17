@@ -23,6 +23,7 @@ const ServerAboutResponseSchema = z
     buildUrl: z.string().optional().describe('Build URL'),
     buildImage: z.string().optional().describe('Build image name'),
     buildImageUrl: z.string().optional().describe('Build image URL'),
+    buildDate: z.string().optional().describe('Build date'),
     nodejs: z.string().optional().describe('Node.js version'),
     ffmpeg: z.string().optional().describe('FFmpeg version'),
     imagemagick: z.string().optional().describe('ImageMagick version'),

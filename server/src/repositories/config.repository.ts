@@ -38,6 +38,7 @@ export interface EnvData {
     buildUrl?: string;
     buildImage?: string;
     buildImageUrl?: string;
+    buildDate?: string;
     repository?: string;
     repositoryUrl?: string;
     sourceRef?: string;
@@ -269,6 +270,7 @@ const getEnv = (): EnvData => {
       buildUrl: dto.IMMICH_BUILD_URL,
       buildImage: dto.IMMICH_BUILD_IMAGE,
       buildImageUrl: dto.IMMICH_BUILD_IMAGE_URL,
+      buildDate: dto.IMMICH_BUILD_DATE,
       repository: dto.IMMICH_REPOSITORY,
       repositoryUrl: dto.IMMICH_REPOSITORY_URL,
       sourceRef: dto.IMMICH_SOURCE_REF,
