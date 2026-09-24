@@ -42,8 +42,8 @@
     searchSmart,
     type SmartSearchDto,
   } from '@immich/sdk';
-  import { ActionButton, CommandPaletteDefaultProvider, Icon, IconButton, LoadingSpinner } from '@immich/ui';
-  import { mdiArrowLeft, mdiClose, mdiDotsVertical, mdiImageOffOutline, mdiSelectAll } from '@mdi/js';
+  import { ActionButton, Button, CommandPaletteDefaultProvider, Icon, IconButton, LoadingSpinner } from '@immich/ui';
+  import { mdiArrowLeft, mdiCardsHeart, mdiClose, mdiDotsVertical, mdiImageOffOutline, mdiSelectAll } from '@mdi/js';
   import { tick, untrack } from 'svelte';
   import { t } from 'svelte-i18n';
 
@@ -245,6 +245,14 @@
     assetMultiSelectManager.clear();
     void goto(Route.search(terms));
   }
+
+  const openSmashOrPass = () => {
+    if (!searchQuery) {
+      return;
+    }
+    const parameters = new URLSearchParams({ source: 'search', [QueryParameter.QUERY]: searchQuery });
+    void goto(`${Route.smashOrPass()}?${parameters}`);
+  };
 </script>
 
 <svelte:window bind:scrollY />
@@ -391,8 +399,21 @@
     {:else}
       <div class="fixed inset-s-0 top-0 z-2 w-full">
         <ControlAppBar onClose={() => goto(previousRoute)} backIcon={mdiArrowLeft}>
-          <div class="mx-auto w-full max-w-2xl pe-2">
-            <SearchBar grayTheme={false} value={terms?.query ?? ''} searchQuery={terms} />
+          <div class="mx-auto flex w-full max-w-4xl items-center gap-2 pe-2">
+            <div class="min-w-0 flex-1">
+              <SearchBar grayTheme={false} value={terms?.query ?? ''} searchQuery={terms} />
+            </div>
+            {#if searchQuery && searchResultAssets.length > 0}
+              <Button
+                variant="filled"
+                size="medium"
+                color="primary"
+                leadingIcon={mdiCardsHeart}
+                onclick={openSmashOrPass}
+              >
+                <span class="hidden sm:inline">{$t('smash_or_pass')}</span>
+              </Button>
+            {/if}
           </div>
         </ControlAppBar>
       </div>

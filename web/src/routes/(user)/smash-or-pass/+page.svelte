@@ -1,7 +1,10 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { page } from '$app/state';
   import UserPageLayout from '$lib/components/layouts/UserPageLayout.svelte';
-  import { getAssetUrl } from '$lib/utils';
+  import { featureFlagsManager } from '$lib/managers/feature-flags-manager.svelte';
+  import { lang } from '$lib/stores/preferences.store';
+  import { getAssetPlaybackUrl, getAssetUrl } from '$lib/utils';
   import { handleError } from '$lib/utils/handle-error';
   import {
     AssetOrder,
@@ -10,7 +13,10 @@
     deleteAssets,
     restoreAssets,
     searchAssets,
+    searchSmart,
     type AssetResponseDto,
+    type MetadataSearchDto,
+    type SmartSearchDto,
   } from '@immich/sdk';
   import { Icon, toastManager } from '@immich/ui';
   import { mdiArrowLeft, mdiArrowRight, mdiBackupRestore, mdiHeart, mdiTrashCanOutline } from '@mdi/js';
@@ -29,7 +35,14 @@
   type Props = { data: PageData };
   let { data }: Props = $props();
 
-  const storageKey = 'immich-smash-or-pass-reviewed-v1';
+  type SearchTerms = MetadataSearchDto & Pick<SmartSearchDto, 'query' | 'queryAssetId'>;
+
+  const sourceQuery = $derived(page.url.searchParams.get('query'));
+  const searchScoped = $derived(page.url.searchParams.get('source') === 'search' && Boolean(sourceQuery));
+  const scopedTerms = $derived<SearchTerms>(sourceQuery ? JSON.parse(sourceQuery) : {});
+  const storageKey = $derived(
+    searchScoped ? `immich-smash-or-pass-reviewed-search-v1:${sourceQuery}` : 'immich-smash-or-pass-reviewed-v1',
+  );
   const batchSize = 100;
   let queue = $state<AssetResponseDto[]>([]);
   let history = $state<Action[]>([]);
@@ -66,17 +79,20 @@
     loading = true;
     try {
       while (nextPage !== 0 && queue.length < 20) {
-        const response = await searchAssets({
-          metadataSearchDto: {
-            visibility: AssetVisibility.Timeline,
-            order: AssetOrder.Desc,
-            page: nextPage,
-            size: batchSize,
-          },
-        });
+        const searchDto = {
+          ...scopedTerms,
+          visibility: AssetVisibility.Timeline,
+          order: AssetOrder.Desc,
+          page: nextPage,
+          size: batchSize,
+        };
+        const response =
+          searchScoped && ('query' in searchDto || 'queryAssetId' in searchDto) && featureFlagsManager.value.smartSearch
+            ? await searchSmart({ smartSearchDto: { ...searchDto, language: $lang } })
+            : await searchAssets({ metadataSearchDto: searchDto });
         nextPage = Number(response.assets.nextPage) || 0;
         const candidates = response.assets.items.filter(
-          (asset) => asset.type === AssetTypeEnum.Image && !reviewed.has(asset.id),
+          (asset) => (searchScoped || asset.type === AssetTypeEnum.Image) && !reviewed.has(asset.id),
         );
         queue = [...queue, ...shuffle(candidates)];
       }
@@ -167,7 +183,7 @@
           deleteQueue = deleteQueue.filter((item) => item !== action);
         } else if (action.deleteState === 'deleting') {
           await action.deletionPromise;
-          if (action.deleteState === 'deleted') {
+          if ((action.deleteState as Action['deleteState']) === 'deleted') {
             await restoreAssets({ bulkIdsDto: { ids: [action.asset.id] } });
           }
         } else if (action.deleteState === 'deleted') {
@@ -305,12 +321,24 @@
         onpointerdown={handlePointerDown}
         onpointerup={handlePointerUp}
       >
-        <img
-          class="h-full max-h-[82dvh] w-full object-contain"
-          src={getAssetUrl({ asset: current })}
-          alt={current.originalFileName}
-          draggable="false"
-        />
+        {#if current.type === AssetTypeEnum.Video}
+          <!-- svelte-ignore a11y_media_has_caption -->
+          <video
+            class="h-full max-h-[82dvh] w-full object-contain"
+            src={getAssetPlaybackUrl({ id: current.id, cacheKey: current.thumbhash })}
+            poster={getAssetUrl({ asset: current })}
+            controls
+            autoplay
+            playsinline
+          ></video>
+        {:else}
+          <img
+            class="h-full max-h-[82dvh] w-full object-contain"
+            src={getAssetUrl({ asset: current })}
+            alt={current.originalFileName}
+            draggable="false"
+          />
+        {/if}
         <div
           class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-5 pb-4 pt-16 text-white"
         >
