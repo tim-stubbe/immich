@@ -26,6 +26,7 @@
     mdiMagnify,
     mdiMap,
     mdiMapOutline,
+    mdiCardsHeart,
     mdiTagMultipleOutline,
     mdiToolbox,
     mdiToolboxOutline,
@@ -66,6 +67,8 @@
   <NavbarGroup title={$t('library')} size="tiny" />
 
   <NavbarItem title={$t('favorites')} href={Route.favorites()} icon={mdiHeartOutline} activeIcon={mdiHeart} />
+
+  <NavbarItem title={$t('smash_or_pass')} href={Route.smashOrPass()} icon={mdiCardsHeart} />
 
   <NavbarItem
     title={$t('albums')}
