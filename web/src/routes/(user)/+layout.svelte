@@ -24,7 +24,7 @@
 
 <div
   aria-hidden="true"
-  class="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-fixed bg-no-repeat opacity-60"
+  class="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60"
   style="background-image: url('/alpen-bg.jpg')"
 ></div>
 <div aria-hidden="true" class="pointer-events-none fixed inset-0 z-0 bg-white/30 dark:bg-black/40"></div>

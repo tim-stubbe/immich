@@ -71,7 +71,7 @@
 
     {#if title || buttons}
       <div
-        class="absolute flex h-16 w-full place-items-center justify-between border-b bg-light/65 p-2 text-dark backdrop-blur-xl dark:bg-immich-dark-bg/65"
+        class="absolute flex h-16 w-full place-items-center justify-between border-b bg-light/80 p-2 text-dark dark:bg-immich-dark-bg/80"
       >
         <div class="flex items-center gap-2">
           {#if title}
