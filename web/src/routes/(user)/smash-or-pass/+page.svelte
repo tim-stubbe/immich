@@ -282,17 +282,9 @@
 <svelte:document onkeydown={handleKeydown} />
 
 <UserPageLayout title={data.meta.title} scrollbar={false}>
-  <div
-    class="relative isolate flex h-full min-h-[32rem] flex-col items-center justify-center gap-3 overflow-hidden px-2 py-3"
-  >
+  <div class="relative flex h-full min-h-[32rem] flex-col items-center justify-center gap-3 overflow-hidden px-2 py-3">
     <div
-      class="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat opacity-60"
-      style="background-image: url('/alpen-bg.jpg')"
-    ></div>
-    <div class="pointer-events-none absolute inset-0 -z-10 bg-white/35 dark:bg-black/45"></div>
-
-    <div
-      class="flex w-full max-w-6xl items-center justify-between rounded-2xl bg-white/75 px-4 py-2 text-sm text-gray-700 shadow-lg backdrop-blur-md dark:bg-black/65 dark:text-gray-200"
+      class="flex w-full max-w-3xl items-center justify-between rounded-2xl bg-white/75 px-4 py-2 text-sm text-gray-700 shadow-lg backdrop-blur-md dark:bg-black/65 dark:text-gray-200"
     >
       <span>{$t('smash_or_pass_progress', { values: { kept: keptCount, passed: passedCount } })}</span>
       <button
@@ -309,12 +301,12 @@
       <div
         role="group"
         aria-label={$t('smash_or_pass')}
-        class="relative flex min-h-0 w-full max-w-6xl flex-1 touch-pan-y select-none items-center justify-center overflow-hidden rounded-3xl bg-black shadow-2xl ring-1 ring-white/30"
+        class="relative flex min-h-0 w-full max-w-3xl flex-1 touch-pan-y select-none items-center justify-center overflow-hidden rounded-3xl bg-black shadow-2xl ring-1 ring-white/30"
         onpointerdown={handlePointerDown}
         onpointerup={handlePointerUp}
       >
         <img
-          class="h-full max-h-[78dvh] w-full object-contain"
+          class="h-full max-h-[82dvh] w-full object-contain"
           src={getAssetUrl({ asset: current })}
           alt={current.originalFileName}
           draggable="false"
@@ -327,7 +319,7 @@
         </div>
       </div>
 
-      <div class="grid w-full max-w-6xl grid-cols-2 gap-3">
+      <div class="grid w-full max-w-3xl grid-cols-2 gap-3">
         <button
           type="button"
           class="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 text-lg font-semibold text-white shadow-lg transition hover:bg-red-700 active:scale-95 disabled:opacity-50"
@@ -349,7 +341,7 @@
       </div>
 
       <div
-        class="hidden w-full max-w-6xl justify-between rounded-full bg-black/55 px-4 py-2 text-xs text-white/85 backdrop-blur-md md:flex"
+        class="hidden w-full max-w-3xl justify-between rounded-full bg-black/55 px-4 py-2 text-xs text-white/85 backdrop-blur-md md:flex"
       >
         <span><Icon icon={mdiArrowLeft} size="16" /> {$t('smash_or_pass_left_hint')}</span>
         <span>{$t('smash_or_pass_right_hint')} <Icon icon={mdiArrowRight} size="16" /></span>

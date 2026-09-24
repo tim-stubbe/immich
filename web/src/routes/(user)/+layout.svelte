@@ -22,10 +22,17 @@
   });
 </script>
 
-<div class:display-none={assetViewerManager.isViewing}>
+<div
+  aria-hidden="true"
+  class="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-fixed bg-no-repeat opacity-60"
+  style="background-image: url('/alpen-bg.jpg')"
+></div>
+<div aria-hidden="true" class="pointer-events-none fixed inset-0 z-0 bg-white/30 dark:bg-black/40"></div>
+
+<div class="relative z-1 h-dvh" class:display-none={assetViewerManager.isViewing}>
   {@render children?.()}
 </div>
-<UploadCover />
+<div class="relative z-2"><UploadCover /></div>
 
 <style>
   :root {
