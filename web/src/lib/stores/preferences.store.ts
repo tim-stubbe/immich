@@ -1,13 +1,13 @@
+import { defaultLang } from '#lib/constants.ts';
+import { convertBCP47, getPreferredLocale } from '#lib/utils/i18n.ts';
 import { persisted } from 'svelte-persisted-store';
-import { browser } from '$app/environment';
-import { defaultLang } from '$lib/constants';
-import { convertBCP47, getPreferredLocale } from '$lib/utils/i18n';
+import { browser } from '$app/env';
 
 // Locale to use for formatting dates, numbers, etc.
 export const locale = persisted('locale', 'default', {
   serializer: {
     parse: (text) => convertBCP47(text) || 'default',
-    stringify: (object) => object ?? '',
+    stringify: (object = '') => object,
   },
 });
 
@@ -15,7 +15,7 @@ const preferredLocale = browser ? getPreferredLocale() : undefined;
 export const lang = persisted<string>('lang', preferredLocale || defaultLang.code, {
   serializer: {
     parse: (text) => convertBCP47(text),
-    stringify: (object) => object ?? '',
+    stringify: (object = '') => object,
   },
 });
 
@@ -25,6 +25,7 @@ export interface MapSettings {
   onlyFavorites: boolean;
   withPartners: boolean;
   withSharedAlbums: boolean;
+  showAssetPanel: boolean;
   relativeDate: string;
   dateAfter?: string;
   dateBefore?: string;
@@ -36,6 +37,7 @@ const defaultMapSettings = {
   onlyFavorites: false,
   withPartners: false,
   withSharedAlbums: false,
+  showAssetPanel: false,
   relativeDate: '',
 };
 
@@ -134,3 +136,5 @@ export const autoPlayVideo = persisted<boolean>('auto-play-video', true, {});
 export const alwaysLoadOriginalVideo = persisted<boolean>('always-load-original-video', false, {});
 
 export const recentAlbumsDropdown = persisted<boolean>('recent-albums-open', true, {});
+
+export const hideBackupsReminder = persisted<boolean>('hide-backups-reminder', false, {});

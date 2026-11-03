@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:immich_mobile/extensions/build_context_extensions.dart';
+import 'package:immich_mobile/extensions/datetime_extensions.dart';
 import 'package:immich_mobile/generated/translations.g.dart';
 import 'package:immich_mobile/models/shared_link/shared_link.model.dart';
 import 'package:immich_mobile/providers/server_info.provider.dart';
@@ -157,8 +158,8 @@ class SharedLinkEditPage extends HookConsumerWidget {
 
     Widget buildAllowDownloadButton() {
       return SwitchListTile.adaptive(
-        value: allowDownload.value,
-        onChanged: (value) => allowDownload.value = value,
+        value: allowDownload.value && showMetadata.value,
+        onChanged: showMetadata.value ? (value) => allowDownload.value = value : null,
         dense: true,
         title: Text(
           context.t.allow_public_user_to_download,
@@ -179,7 +180,7 @@ class SharedLinkEditPage extends HookConsumerWidget {
       );
     }
 
-    String formatDateTime(DateTime dateTime) => DateFormat.yMMMd(context.locale.toString()).add_Hm().format(dateTime);
+    String formatDateTime(DateTime dateTime) => DateFormat.yMMMd(resolvedDateTimeLocale()).add_Hm().format(dateTime);
 
     DateTime? getExpiresAtFromPreset(Duration preset) => preset == Duration.zero ? null : DateTime.now().add(preset);
 

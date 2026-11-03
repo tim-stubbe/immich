@@ -1,12 +1,14 @@
 <script lang="ts">
-  import { lang, locale } from '$lib/stores/preferences.store';
-  import { getAssetMediaUrl } from '$lib/utils';
-  import { getAllMetadataItems, type DifferingMetadataFields } from '$lib/utils/duplicate-utils';
-  import { getAltText } from '$lib/utils/thumbnail-util';
-  import { toTimelineAsset } from '$lib/utils/timeline-util';
-  import { getAllAlbums, type AssetResponseDto } from '@immich/sdk';
+  import { lang, locale } from '#lib/stores/preferences.store.ts';
+  import { getAssetMediaUrl } from '#lib/utils.ts';
+  import { getAllMetadataItems, type DifferingMetadataFields } from '#lib/utils/duplicate-utils.ts';
+  import { getAltText } from '#lib/utils/thumbnail-util.ts';
+  import { toTimelineAsset } from '#lib/utils/timeline-util.ts';
+  import { getAlbumsByAssetQuery } from '#lib/queries/album.query.ts';
+  import { type AssetResponseDto } from '@immich/sdk';
   import { Icon } from '@immich/ui';
   import { mdiBookmarkOutline, mdiHeart, mdiImageMultipleOutline, mdiMagnifyPlus } from '@mdi/js';
+  import { createQuery } from '@tanstack/svelte-query';
   import { t } from 'svelte-i18n';
   import InfoRow from './InfoRow.svelte';
 
@@ -30,6 +32,9 @@
     initialVisibleCount = 5,
   }: Props = $props();
 
+  const query = createQuery(() => getAlbumsByAssetQuery(asset.id));
+  const albums = $derived(query.data);
+
   const listFormat = $derived(new Intl.ListFormat($lang));
   const isFromExternalLibrary = $derived(!!asset.libraryId);
 
@@ -40,7 +45,7 @@
   );
 </script>
 
-<div class="min-w-60 flex-1 rounded-lg border transition-colors">
+<div class="min-w-60 flex-1 overflow-hidden rounded-lg border transition-colors">
   <div class="relative w-full">
     <button
       type="button"
@@ -53,7 +58,7 @@
       <img
         src={getAssetMediaUrl({ id: asset.id })}
         alt={$getAltText(toTimelineAsset(asset))}
-        class="h-60 w-full rounded-t-md object-cover"
+        class="h-60 w-full object-cover"
         draggable="false"
       />
 
@@ -102,29 +107,27 @@
   </div>
 
   <div
-    class="grid place-items-start gap-y-2 rounded-b-lg py-2 text-sm transition-colors {isSelected
+    class="grid place-items-start divide-y text-sm transition-colors {isSelected
       ? 'bg-success/15 dark:bg-[#001a06]'
       : 'bg-transparent'}"
   >
-    {#each visibleMetadataItems as { icon, title, render, keys } (keys[0])}
-      <InfoRow {icon} {title}>
+    {#each visibleMetadataItems as { icon, title, render, tooltip, keys } (keys[0])}
+      <InfoRow {icon} {title} {tooltip}>
         {render}
       </InfoRow>
     {/each}
 
     <!-- Albums always shown -->
-    <InfoRow icon={mdiBookmarkOutline} borderBottom={false} title={$t('albums')}>
-      {#await getAllAlbums({ assetId: asset.id })}
+    <InfoRow icon={mdiBookmarkOutline} title={$t('albums')}>
+      {#if !albums}
         {$t('scanning_for_album')}
-      {:then albums}
-        {#if albums.length === 1}
-          {albums[0].albumName}
-        {:else}
-          <span title={listFormat.format(albums.map(({ albumName }) => albumName))}>
-            {$t('in_albums', { values: { count: albums.length } })}
-          </span>
-        {/if}
-      {/await}
+      {:else if albums.length === 1}
+        {albums[0].albumName}
+      {:else}
+        <span title={listFormat.format(albums.map(({ albumName }) => albumName))}>
+          {$t('in_albums', { values: { count: albums.length } })}
+        </span>
+      {/if}
     </InfoRow>
   </div>
 </div>

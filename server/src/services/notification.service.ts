@@ -1,17 +1,19 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { OnEvent, OnJob } from 'src/decorators';
-import { MapAlbumDto } from 'src/dtos/album.dto';
-import { mapAsset } from 'src/dtos/asset-response.dto';
-import { AuthDto } from 'src/dtos/auth.dto';
+import type { ArgOf } from 'src/repositories/event.repository.js';
+import type { EmailImageAttachment, JobOf } from 'src/types.js';
+import { OnEvent, OnJob } from 'src/decorators.js';
+import { MapAlbumDto } from 'src/dtos/album.dto.js';
+import { mapAsset } from 'src/dtos/asset-response.dto.js';
+import { AuthDto } from 'src/dtos/auth.dto.js';
+import { SystemConfigSmtpDto } from 'src/dtos/config.dto.js';
 import {
-  mapNotification,
   NotificationDeleteAllDto,
   NotificationDto,
   NotificationSearchDto,
   NotificationUpdateAllDto,
   NotificationUpdateDto,
-} from 'src/dtos/notification.dto';
-import { SystemConfigSmtpDto } from 'src/dtos/system-config.dto';
+  mapNotification,
+} from 'src/dtos/notification.dto.js';
 import {
   AssetFileType,
   JobName,
@@ -20,15 +22,13 @@ import {
   NotificationType,
   Permission,
   QueueName,
-} from 'src/enum';
-import { EmailTemplate } from 'src/repositories/email.repository';
-import { ArgOf } from 'src/repositories/event.repository';
-import { BaseService } from 'src/services/base.service';
-import { EmailImageAttachment, JobOf } from 'src/types';
-import { getFilenameExtension } from 'src/utils/file';
-import { getExternalDomain } from 'src/utils/misc';
-import { isEqualObject } from 'src/utils/object';
-import { getPreferences } from 'src/utils/preferences';
+} from 'src/enum.js';
+import { EmailTemplate } from 'src/repositories/email.repository.js';
+import { BaseService } from 'src/services/base.service.js';
+import { getFilenameExtension } from 'src/utils/file.js';
+import { getExternalDomain } from 'src/utils/misc.js';
+import { isEqualObject } from 'src/utils/object.js';
+import { getPreferences } from 'src/utils/preferences.js';
 
 @Injectable()
 export class NotificationService extends BaseService {
@@ -123,6 +123,21 @@ export class NotificationService extends BaseService {
     this.websocketRepository.serverSend('AppRestart', state);
   }
 
+  @OnEvent({ name: 'LibraryCreate' })
+  onLibraryCreate() {
+    this.websocketRepository.serverSend('LibraryCreate');
+  }
+
+  @OnEvent({ name: 'LibraryUpdate' })
+  onLibraryUpdate() {
+    this.websocketRepository.serverSend('LibraryUpdate');
+  }
+
+  @OnEvent({ name: 'LibraryDelete' })
+  onLibraryDelete() {
+    this.websocketRepository.serverSend('LibraryDelete');
+  }
+
   @OnEvent({ name: 'ConfigValidate', priority: -100 })
   async onConfigValidate({ oldConfig, newConfig }: ArgOf<'ConfigValidate'>) {
     try {
@@ -169,7 +184,7 @@ export class NotificationService extends BaseService {
       return;
     }
 
-    const [asset] = await this.assetRepository.getByIdsWithAllRelationsButStacks([assetId]);
+    const [asset] = await this.assetRepository.getByIdsWithAllRelationsButStacks([assetId], userId);
     if (asset) {
       this.websocketRepository.clientSend(
         'on_asset_update',
@@ -234,6 +249,20 @@ export class NotificationService extends BaseService {
   @OnEvent({ name: 'AlbumInvite' })
   async onAlbumInvite({ id, userId, senderName }: ArgOf<'AlbumInvite'>) {
     await this.jobRepository.queue({ name: JobName.NotifyAlbumInvite, data: { id, recipientId: userId, senderName } });
+  }
+
+  @OnEvent({ name: 'ClusterGroupRequest' })
+  async onClusterGroupRequest({ clusterGroupId, userId, senderName }: ArgOf<'ClusterGroupRequest'>) {
+    const item = await this.notificationRepository.create({
+      userId,
+      type: NotificationType.ClusterGroupRequest,
+      level: NotificationLevel.Info,
+      title: 'Cluster Group Request',
+      description: `${senderName} asked you to join their cluster group`,
+      data: JSON.stringify({ clusterGroupId }),
+    });
+
+    this.websocketRepository.clientSend('on_notification', userId, mapNotification(item));
   }
 
   @OnEvent({ name: 'SessionDelete' })
@@ -310,7 +339,7 @@ export class NotificationService extends BaseService {
 
   @OnJob({ name: JobName.NotifyAlbumInvite, queue: QueueName.Notification })
   async handleAlbumInvite({ id, recipientId, senderName }: JobOf<JobName.NotifyAlbumInvite>) {
-    const album = await this.albumRepository.getById(id, { withAssets: false });
+    const album = await this.albumRepository.getById(id);
     if (!album) {
       return JobStatus.Skipped;
     }
@@ -360,7 +389,7 @@ export class NotificationService extends BaseService {
 
   @OnJob({ name: JobName.NotifyAlbumUpdate, queue: QueueName.Notification })
   async handleAlbumUpdate({ id, recipientId }: JobOf<JobName.NotifyAlbumUpdate>) {
-    const album = await this.albumRepository.getById(id, { withAssets: false });
+    const album = await this.albumRepository.getById(id);
 
     if (!album) {
       return JobStatus.Skipped;

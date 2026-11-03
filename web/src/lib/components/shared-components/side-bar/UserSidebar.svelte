@@ -1,11 +1,10 @@
 <script lang="ts">
-  import BottomInfo from '$lib/components/shared-components/side-bar/BottomInfo.svelte';
-  import RecentAlbums from '$lib/components/shared-components/side-bar/RecentAlbums.svelte';
-  import Sidebar from '$lib/components/sidebar/Sidebar.svelte';
-  import { authManager } from '$lib/managers/auth-manager.svelte';
-  import { featureFlagsManager } from '$lib/managers/feature-flags-manager.svelte';
-  import { Route } from '$lib/route';
-  import { recentAlbumsDropdown } from '$lib/stores/preferences.store';
+  import BottomInfo from '#lib/components/shared-components/side-bar/BottomInfo.svelte';
+  import RecentAlbums from '#lib/components/shared-components/side-bar/RecentAlbums.svelte';
+  import Sidebar from '#lib/components/sidebar/Sidebar.svelte';
+  import { authManager } from '#lib/managers/auth-manager.svelte.ts';
+  import { Route } from '#lib/route.ts';
+  import { recentAlbumsDropdown } from '#lib/stores/preferences.store.ts';
   import { NavbarGroup, NavbarItem } from '@immich/ui';
   import {
     mdiAccount,
@@ -14,6 +13,8 @@
     mdiAccountOutline,
     mdiArchiveArrowDown,
     mdiArchiveArrowDownOutline,
+    mdiCards,
+    mdiCardsOutline,
     mdiFolderOutline,
     mdiHeart,
     mdiHeartOutline,
@@ -36,17 +37,24 @@
   } from '@mdi/js';
   import { t } from 'svelte-i18n';
   import { fly } from 'svelte/transition';
+  import { createPreloadedQuery } from '#lib/queries/client.ts';
+  import { getUserConfigQuery } from '#lib/queries/config-user.query.ts';
+
+  const query = createPreloadedQuery(getUserConfigQuery);
+  const config = $derived(query.data);
 </script>
 
 <Sidebar ariaLabel={$t('primary')}>
   <NavbarItem title={$t('photos')} href={Route.photos()} icon={mdiImageMultipleOutline} activeIcon={mdiImageMultiple} />
 
-  {#if featureFlagsManager.value.search}
-    <NavbarItem title={$t('explore')} href={Route.explore()} icon={mdiMagnify} />
+  <NavbarItem title={$t('explore')} href={Route.explore()} icon={mdiMagnify} />
+
+  {#if config.map.enabled}
+    <NavbarItem title={$t('map')} href={Route.map()} icon={mdiMapOutline} activeIcon={mdiMap} />
   {/if}
 
-  {#if featureFlagsManager.value.map}
-    <NavbarItem title={$t('map')} href={Route.map()} icon={mdiMapOutline} activeIcon={mdiMap} />
+  {#if authManager.preferences.memories.enabled && authManager.preferences.memories.sidebarWeb}
+    <NavbarItem title={$t('memories')} href={Route.memories()} icon={mdiCardsOutline} activeIcon={mdiCards} />
   {/if}
 
   {#if authManager.preferences.people.enabled && authManager.preferences.people.sidebarWeb}
@@ -110,7 +118,7 @@
 
   <NavbarItem title={$t('locked_folder')} href={Route.locked()} icon={mdiLockOutline} activeIcon={mdiLock} />
 
-  {#if featureFlagsManager.value.trash}
+  {#if config.trash.enabled}
     <NavbarItem title={$t('trash')} href={Route.trash()} icon={mdiTrashCanOutline} activeIcon={mdiTrashCan} />
   {/if}
 

@@ -5,6 +5,7 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 .idea
+.scratch
 
 docker/upload
 docker/library
@@ -27,3 +28,4 @@ vite.config.js.timestamp-*
 .devcontainer/.env*
 *.tsbuildinfo
 *.tsbuildInfo
+misc/release/notes.md

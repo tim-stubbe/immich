@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
-import { OnJob } from 'src/decorators';
-import { AssetVisibility, JobName, JobStatus, QueueName } from 'src/enum';
-import { OCR } from 'src/repositories/machine-learning.repository';
-import { BaseService } from 'src/services/base.service';
-import { JobOf } from 'src/types';
-import { tokenizeForSearch } from 'src/utils/database';
-import { batched, isOcrEnabled } from 'src/utils/misc';
+import type { JobOf } from 'src/types.js';
+import { OnJob } from 'src/decorators.js';
+import { AssetVisibility, JobName, JobStatus, QueueName } from 'src/enum.js';
+import { OCR } from 'src/repositories/machine-learning.repository.js';
+import { BaseService } from 'src/services/base.service.js';
+import { tokenizeForSearch } from 'src/utils/database.js';
+import { batched, isOcrEnabled } from 'src/utils/misc.js';
 
 @Injectable()
 export class OcrService extends BaseService {
@@ -49,6 +49,11 @@ export class OcrService extends BaseService {
     await this.ocrRepository.upsert(id, ocrDataList, searchText);
 
     await this.assetRepository.upsertJobStatus({ assetId: id, ocrAt: new Date() });
+
+    await this.eventRepository.emit('AssetOcrExtracted', {
+      userId: asset.ownerId,
+      assetId: id,
+    });
 
     this.logger.debug(`Processed ${ocrResults.text.length} OCR result(s) for ${id}`);
     return JobStatus.Success;

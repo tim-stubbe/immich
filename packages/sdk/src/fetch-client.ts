@@ -1,6 +1,6 @@
 /**
  * Immich
- * 3.1.0
+ * 3.4.0-rc.0
  * DO NOT MODIFY - This file has been generated using oazapfts.
  * See https://www.npmjs.com/package/oazapfts
  */
@@ -54,6 +54,393 @@ export type ActivityStatisticsResponseDto = {
     /** Number of likes */
     likes: number;
 };
+export type AdminConfigDatabaseBackupDto = {
+    /** Cron expression */
+    cronExpression: string;
+    /** Enabled */
+    enabled: boolean;
+    /** Keep last amount */
+    keepLastAmount: number;
+};
+export type AdminConfigBackupsDto = {
+    /** Whether the backups feature is enabled */
+    beta?: boolean;
+    database: AdminConfigDatabaseBackupDto;
+};
+export type AdminConfigFFmpegRealtimeDto = {
+    /** Enable real-time HLS transcoding (alpha) */
+    enabled: boolean;
+    /** Resolutions to use for real-time HLS transcoding */
+    resolutions: HlsVideoResolution[];
+    /** Video codecs to use for real-time HLS transcoding */
+    videoCodecs: VideoCodec[];
+};
+export type AdminConfigFFmpegDto = {
+    accel: TranscodeHWAccel;
+    /** Accelerated decode */
+    accelDecode: boolean;
+    /** Accepted audio codecs */
+    acceptedAudioCodecs: AudioCodec[];
+    /** Accepted containers */
+    acceptedContainers: VideoContainer[];
+    /** Accepted video codecs */
+    acceptedVideoCodecs: VideoCodec[];
+    /** B-frames */
+    bframes: number;
+    cqMode: CQMode;
+    /** CRF */
+    crf: number;
+    /** GOP size */
+    gopSize: number;
+    /** Max bitrate */
+    maxBitrate: string;
+    /** Preferred hardware device */
+    preferredHwDevice: string;
+    /** Preset */
+    preset: string;
+    realtime: AdminConfigFFmpegRealtimeDto;
+    /** References */
+    refs: number;
+    targetAudioCodec: AudioCodec;
+    /** Target resolution */
+    targetResolution: string;
+    targetVideoCodec: VideoCodec;
+    /** Temporal AQ */
+    temporalAQ: boolean;
+    /** Threads */
+    threads: number;
+    tonemap: ToneMapping;
+    transcode: TranscodePolicy;
+    /** Two pass */
+    twoPass: boolean;
+};
+export type AdminConfigGeneratedFullsizeImageDto = {
+    /** Enabled */
+    enabled: boolean;
+    format: ImageFormat;
+    /** Progressive */
+    progressive?: boolean;
+    /** Quality */
+    quality: number;
+};
+export type AdminConfigGeneratedImageDto = {
+    format: ImageFormat;
+    /** Progressive */
+    progressive?: boolean;
+    /** Quality */
+    quality: number;
+    /** Size */
+    size: number;
+};
+export type AdminConfigImageDto = {
+    colorspace: Colorspace;
+    /** Extract embedded */
+    extractEmbedded: boolean;
+    fullsize: AdminConfigGeneratedFullsizeImageDto;
+    preview: AdminConfigGeneratedImageDto;
+    thumbnail: AdminConfigGeneratedImageDto;
+};
+export type AdminConfigIntegrityChecksumJobDto = {
+    /** Cron expression for when the integrity check should run */
+    cronExpression: string;
+    /** Enabled */
+    enabled: boolean;
+    /** Percentage limit of the integrity checksum job */
+    percentageLimit: number;
+    /** How long the integrity checksum job may run for */
+    timeLimit: number;
+};
+export type AdminConfigIntegrityJobDto = {
+    /** Cron expression for when the integrity check should run */
+    cronExpression: string;
+    /** Enabled */
+    enabled: boolean;
+};
+export type AdminConfigIntegrityChecksDto = {
+    checksumFiles: AdminConfigIntegrityChecksumJobDto;
+    missingFiles: AdminConfigIntegrityJobDto;
+    untrackedFiles: AdminConfigIntegrityJobDto;
+};
+export type AdminConfigJobSettingsDto = {
+    /** Concurrency */
+    concurrency: number;
+};
+export type AdminConfigJobDto = {
+    backgroundTask: AdminConfigJobSettingsDto;
+    editor: AdminConfigJobSettingsDto;
+    faceDetection: AdminConfigJobSettingsDto;
+    integrityCheck: AdminConfigJobSettingsDto;
+    library: AdminConfigJobSettingsDto;
+    metadataExtraction: AdminConfigJobSettingsDto;
+    migration: AdminConfigJobSettingsDto;
+    notifications: AdminConfigJobSettingsDto;
+    ocr: AdminConfigJobSettingsDto;
+    search: AdminConfigJobSettingsDto;
+    sidecar: AdminConfigJobSettingsDto;
+    smartSearch: AdminConfigJobSettingsDto;
+    thumbnailGeneration: AdminConfigJobSettingsDto;
+    videoConversion: AdminConfigJobSettingsDto;
+    workflow: AdminConfigJobSettingsDto;
+};
+export type AdminConfigLibraryScanDto = {
+    /** Cron expression */
+    cronExpression: string;
+    /** Enabled */
+    enabled: boolean;
+};
+export type AdminConfigLibraryWatchDto = {
+    /** Enabled */
+    enabled: boolean;
+};
+export type AdminConfigLibraryDto = {
+    scan: AdminConfigLibraryScanDto;
+    watch: AdminConfigLibraryWatchDto;
+};
+export type AdminConfigLoggingDto = {
+    /** Enabled */
+    enabled: boolean;
+    level: LogLevel;
+};
+export type AdminConfigMachineLearningAvailabilityChecksDto = {
+    /** Enabled */
+    enabled: boolean;
+    interval: number;
+    timeout: number;
+};
+export type AdminConfigClipDto = {
+    /** Whether the task is enabled */
+    enabled: boolean;
+    /** Name of the model to use */
+    modelName: string;
+};
+export type AdminConfigDuplicateDetectionDto = {
+    /** Whether the task is enabled */
+    enabled: boolean;
+    /** Maximum distance threshold for duplicate detection */
+    maxDistance: number;
+};
+export type AdminConfigFacialRecognitionDto = {
+    /** Whether the task is enabled */
+    enabled: boolean;
+    /** Maximum distance threshold for face recognition */
+    maxDistance: number;
+    /** Minimum number of faces required for recognition */
+    minFaces: number;
+    /** Minimum confidence score for face detection */
+    minScore: number;
+    /** Name of the model to use */
+    modelName: string;
+};
+export type AdminConfigOcrDto = {
+    /** Whether the task is enabled */
+    enabled: boolean;
+    /** Maximum resolution for OCR processing */
+    maxResolution: number;
+    /** Minimum confidence score for text detection */
+    minDetectionScore: number;
+    /** Minimum confidence score for text recognition */
+    minRecognitionScore: number;
+    /** Name of the model to use */
+    modelName: string;
+};
+export type AdminConfigMachineLearningDto = {
+    availabilityChecks: AdminConfigMachineLearningAvailabilityChecksDto;
+    clip: AdminConfigClipDto;
+    duplicateDetection: AdminConfigDuplicateDetectionDto;
+    /** Enabled */
+    enabled: boolean;
+    facialRecognition: AdminConfigFacialRecognitionDto;
+    ocr: AdminConfigOcrDto;
+    /** ML service URLs */
+    urls: string[];
+};
+export type AdminConfigMapDto = {
+    /** Dark map style URL */
+    darkStyle: string;
+    /** Enabled */
+    enabled: boolean;
+    /** Light map style URL */
+    lightStyle: string;
+};
+export type AdminConfigFacesDto = {
+    /** Import */
+    "import": boolean;
+};
+export type AdminConfigMetadataDto = {
+    faces: AdminConfigFacesDto;
+};
+export type AdminConfigNewVersionCheckDto = {
+    channel: ReleaseChannel;
+    /** Enabled */
+    enabled: boolean;
+};
+export type AdminConfigNightlyTasksDto = {
+    /** Cluster new faces */
+    clusterNewFaces: boolean;
+    /** Database cleanup */
+    databaseCleanup: boolean;
+    /** Generate memories */
+    generateMemories: boolean;
+    /** Missing thumbnails */
+    missingThumbnails: boolean;
+    /** Start time (HH:MM) */
+    startTime: string;
+    /** Sync quota usage */
+    syncQuotaUsage: boolean;
+};
+export type AdminConfigSmtpTransportDto = {
+    /** SMTP server hostname */
+    host: string;
+    /** Whether to ignore SSL certificate errors */
+    ignoreCert: boolean;
+    /** SMTP password */
+    password: string;
+    /** SMTP server port */
+    port: number;
+    /** Whether to use secure connection (TLS/SSL) */
+    secure: boolean;
+    /** SMTP username */
+    username: string;
+};
+export type AdminConfigSmtpDto = {
+    /** Whether SMTP email notifications are enabled */
+    enabled: boolean;
+    /** Email address to send from */
+    "from": string;
+    /** Email address for replies */
+    replyTo: string;
+    transport: AdminConfigSmtpTransportDto;
+};
+export type AdminConfigNotificationsDto = {
+    smtp: AdminConfigSmtpDto;
+};
+export type AdminConfigOAuthDto = {
+    /** Account management URL */
+    accountManagementUrl?: string;
+    /** Allow insecure requests */
+    allowInsecureRequests: boolean;
+    /** Auto launch */
+    autoLaunch: boolean;
+    /** Auto register */
+    autoRegister: boolean;
+    /** Button text */
+    buttonText: string;
+    /** Client ID */
+    clientId: string;
+    /** Client secret */
+    clientSecret: string;
+    /** Default storage quota */
+    defaultStorageQuota: number | null;
+    /** Enabled */
+    enabled: boolean;
+    /** End session endpoint */
+    endSessionEndpoint: string;
+    /** Issuer URL */
+    issuerUrl: string;
+    /** Mobile override enabled */
+    mobileOverrideEnabled: boolean;
+    /** Mobile redirect URI (set to empty string to disable) */
+    mobileRedirectUri: string;
+    /** Profile signing algorithm */
+    profileSigningAlgorithm: string;
+    /** OAuth prompt parameter (e.g. select_account, login, consent) */
+    prompt: string;
+    /** Role claim */
+    roleClaim: string;
+    /** Scope */
+    scope: string;
+    /** Signing algorithm */
+    signingAlgorithm: string;
+    /** Storage label claim */
+    storageLabelClaim: string;
+    /** Storage quota claim */
+    storageQuotaClaim: string;
+    /** Timeout */
+    timeout: number;
+    tokenEndpointAuthMethod: OAuthTokenEndpointAuthMethod;
+};
+export type AdminConfigPasskeyDto = {
+    /** Additional domains */
+    additionalDomains: string[];
+    /** Passkey domain */
+    domain: string | null;
+    /** Enabled */
+    enabled: boolean;
+};
+export type AdminConfigPasswordLoginDto = {
+    /** Enabled */
+    enabled: boolean;
+};
+export type AdminConfigReverseGeocodingDto = {
+    /** Enabled */
+    enabled: boolean;
+};
+export type AdminConfigServerDto = {
+    /** External domain */
+    externalDomain: string;
+    /** Login page message */
+    loginPageMessage: string;
+    /** Public users */
+    publicUsers: boolean;
+};
+export type AdminConfigStorageTemplateDto = {
+    /** Enabled */
+    enabled: boolean;
+    /** Hash verification enabled */
+    hashVerificationEnabled: boolean;
+    /** Template */
+    template: string;
+};
+export type AdminConfigTemplateEmailsDto = {
+    /** Album invite template */
+    albumInviteTemplate: string;
+    /** Album update template */
+    albumUpdateTemplate: string;
+    /** Welcome template */
+    welcomeTemplate: string;
+};
+export type AdminConfigTemplatesDto = {
+    email: AdminConfigTemplateEmailsDto;
+};
+export type AdminConfigThemeDto = {
+    /** Custom CSS for theming */
+    customCss: string;
+};
+export type AdminConfigTrashDto = {
+    /** Days */
+    days: number;
+    /** Enabled */
+    enabled: boolean;
+};
+export type AdminConfigUserDto = {
+    /** Delete delay */
+    deleteDelay: number;
+};
+export type AdminConfigDto = {
+    backup: AdminConfigBackupsDto;
+    ffmpeg: AdminConfigFFmpegDto;
+    image: AdminConfigImageDto;
+    integrityChecks: AdminConfigIntegrityChecksDto;
+    job: AdminConfigJobDto;
+    library: AdminConfigLibraryDto;
+    logging: AdminConfigLoggingDto;
+    machineLearning: AdminConfigMachineLearningDto;
+    map: AdminConfigMapDto;
+    metadata: AdminConfigMetadataDto;
+    newVersionCheck: AdminConfigNewVersionCheckDto;
+    nightlyTasks: AdminConfigNightlyTasksDto;
+    notifications: AdminConfigNotificationsDto;
+    oauth: AdminConfigOAuthDto;
+    passkey: AdminConfigPasskeyDto;
+    passwordLogin: AdminConfigPasswordLoginDto;
+    reverseGeocoding: AdminConfigReverseGeocodingDto;
+    server: AdminConfigServerDto;
+    storageTemplate: AdminConfigStorageTemplateDto;
+    templates: AdminConfigTemplatesDto;
+    theme: AdminConfigThemeDto;
+    trash: AdminConfigTrashDto;
+    user: AdminConfigUserDto;
+};
 export type DatabaseBackupDeleteDto = {
     /** Backup filenames to delete */
     backups: string[];
@@ -93,6 +480,10 @@ export type SetMaintenanceModeDto = {
     action: MaintenanceAction;
     /** Restore backup filename */
     restoreBackupFilename?: string;
+    /** Rollback repository ID */
+    rollbackRepositoryId?: string;
+    /** Rollback snapshot ID */
+    rollbackSnapshotId?: string;
 };
 export type MaintenanceDetectInstallStorageFolderDto = {
     /** Number of files in the folder */
@@ -118,6 +509,8 @@ export type MaintenanceStatusResponseDto = {
     action: MaintenanceAction;
     active: boolean;
     error?: string;
+    /** FUTO Backups job ID */
+    futoBackupsJobId?: string;
     progress?: number;
     task?: string;
 };
@@ -165,29 +558,6 @@ export type TemplateResponseDto = {
     /** Template name */
     name: string;
 };
-export type SystemConfigSmtpTransportDto = {
-    /** SMTP server hostname */
-    host: string;
-    /** Whether to ignore SSL certificate errors */
-    ignoreCert: boolean;
-    /** SMTP password */
-    password: string;
-    /** SMTP server port */
-    port: number;
-    /** Whether to use secure connection (TLS/SSL) */
-    secure: boolean;
-    /** SMTP username */
-    username: string;
-};
-export type SystemConfigSmtpDto = {
-    /** Whether SMTP email notifications are enabled */
-    enabled: boolean;
-    /** Email address to send from */
-    "from": string;
-    /** Email address for replies */
-    replyTo: string;
-    transport: SystemConfigSmtpTransportDto;
-};
 export type TestEmailResponseDto = {
     /** Email message ID */
     messageId: string;
@@ -202,6 +572,8 @@ export type UserLicense = {
 };
 export type UserAdminResponseDto = {
     avatarColor: UserAvatarColor;
+    /** Cluster group the user is a member of */
+    clusterGroupId: string;
     /** Creation date */
     createdAt: string;
     /** Deletion date */
@@ -323,6 +695,8 @@ export type MemoriesResponse = {
     duration: number;
     /** Whether memories are enabled */
     enabled: boolean;
+    /** Whether memories appear in web sidebar */
+    sidebarWeb: boolean;
 };
 export type PeopleResponse = {
     /** Whether people are enabled */
@@ -331,6 +705,7 @@ export type PeopleResponse = {
     minimumFaces?: number;
     /** Whether people appear in web sidebar */
     sidebarWeb: boolean;
+    updateStrategy: PersonUpdateStrategy;
 };
 export type PurchaseResponse = {
     /** Date until which to hide buy button */
@@ -407,6 +782,8 @@ export type MemoriesUpdate = {
     duration?: number;
     /** Whether memories are enabled */
     enabled?: boolean;
+    /** Whether memories appear in web sidebar */
+    sidebarWeb?: boolean;
 };
 export type PeopleUpdate = {
     /** Whether people are enabled */
@@ -415,6 +792,7 @@ export type PeopleUpdate = {
     minimumFaces?: number;
     /** Whether people appear in web sidebar */
     sidebarWeb?: boolean;
+    updateStrategy?: PersonUpdateStrategy;
 };
 export type PurchaseUpdate = {
     /** Date until which to hide buy button */
@@ -509,7 +887,7 @@ export type AlbumResponseDto = {
     createdAt: string;
     /** Album description */
     description: string;
-    /** End date (latest asset) */
+    /** UTC representation of (local) end date (latest asset) */
     endDate?: string;
     /** Has shared link */
     hasSharedLink: boolean;
@@ -522,7 +900,7 @@ export type AlbumResponseDto = {
     order?: AssetOrder;
     /** Is shared album */
     shared: boolean;
-    /** Start date (earliest asset) */
+    /** UTC representation of (local) start date (earliest asset) */
     startDate?: string;
     /** Last update date */
     updatedAt: string;
@@ -631,14 +1009,41 @@ export type ApiKeyCreateDto = {
 };
 export type ApiKeyCreateResponseDto = {
     apiKey: ApiKeyResponseDto;
+    /** Creation date */
+    createdAt: string;
+    /** API key ID */
+    id: string;
+    /** API key name */
+    name: string;
+    /** List of permissions */
+    permissions: Permission[];
     /** API key secret (only shown once) */
     secret: string;
+    /** Last update date */
+    updatedAt: string;
 };
 export type ApiKeyUpdateDto = {
     /** API key name */
     name?: string;
     /** List of permissions */
     permissions?: Permission[];
+};
+export type AssetFileResponseDto = {
+    /** Creation date */
+    createdAt: string;
+    /** Asset file ID */
+    id: string;
+    /** The file was generated from an edit */
+    isEdited: boolean;
+    /** The file is a progressively encoded JPEG */
+    isProgressive: boolean;
+    /** The file is transparent */
+    isTransparent: boolean;
+    /** File path */
+    path: string;
+    "type": AssetFileType;
+    /** Update date */
+    updatedAt: string;
 };
 export type AssetBulkDeleteDto = {
     /** Force delete even if in use */
@@ -830,6 +1235,27 @@ export type ExifResponseDto = {
     /** Time zone */
     timeZone?: string | null;
 };
+export type PersonOtherResponseDto = {
+    birthDate: string | null;
+    name: string;
+    role: PersonUserRole;
+    sharedById: string;
+};
+export type PeopleUserResponseDto = {
+    avatarColor: UserAvatarColor;
+    /** User email */
+    email: string;
+    /** User ID */
+    id: string;
+    /** User name */
+    name: string;
+    /** Profile change date */
+    profileChangedAt: string;
+    /** Profile image path */
+    profileImagePath: string;
+    /** Access role */
+    role: PersonUserRole;
+};
 export type PersonResponseDto = {
     /** Person date of birth */
     birthDate: string | null;
@@ -843,6 +1269,11 @@ export type PersonResponseDto = {
     isHidden: boolean;
     /** Person name */
     name: string;
+    otherPeople: PersonOtherResponseDto[];
+    /** Users that gave the current user access to this person */
+    sharedBy: PeopleUserResponseDto[];
+    /** Users the current user gave access to this person */
+    sharedWith: PeopleUserResponseDto[];
     /** Thumbnail path */
     thumbnailPath: string;
     /** Last update date */
@@ -1113,7 +1544,142 @@ export type ValidateAccessTokenResponseDto = {
     /** Authentication status */
     authStatus: boolean;
 };
+export type ClusterGroupRequestResponseDto = {
+    /** Cluster group the user is invited to join */
+    clusterGroupId: string;
+    /** Creation date */
+    createdAt: string;
+    /** Request ID */
+    id: string;
+    /** User the request was created for */
+    userId: string;
+};
+export type ClusterGroupRequestCreateDto = {
+    /** User to invite into the cluster group */
+    userId: string;
+};
+export type UserConfigFFmpegRealtimeDto = {
+    /** Enable real-time HLS transcoding (alpha) */
+    enabled: boolean;
+    /** Resolutions to use for real-time HLS transcoding */
+    resolutions: HlsVideoResolution[];
+    /** Video codecs to use for real-time HLS transcoding */
+    videoCodecs: VideoCodec[];
+};
+export type UserConfigFFmpegDto = {
+    realtime: UserConfigFFmpegRealtimeDto;
+};
+export type UserConfigGeneratedFullsizeImageDto = {
+    /** Enabled */
+    enabled: boolean;
+};
+export type UserConfigGeneratedImageDto = {
+    /** Size */
+    size: number;
+};
+export type UserConfigImageDto = {
+    fullsize: UserConfigGeneratedFullsizeImageDto;
+    preview: UserConfigGeneratedImageDto;
+    thumbnail: UserConfigGeneratedImageDto;
+};
+export type UserConfigClipDto = {
+    /** Whether the task is enabled */
+    enabled: boolean;
+};
+export type UserConfigDuplicateDetectionDto = {
+    /** Whether the task is enabled */
+    enabled: boolean;
+};
+export type UserConfigFacialRecognitionDto = {
+    /** Whether the task is enabled */
+    enabled: boolean;
+    /** Minimum number of faces required for recognition */
+    minFaces: number;
+};
+export type UserConfigOcrDto = {
+    /** Whether the task is enabled */
+    enabled: boolean;
+};
+export type UserConfigMachineLearningDto = {
+    clip: UserConfigClipDto;
+    duplicateDetection: UserConfigDuplicateDetectionDto;
+    /** Enabled */
+    enabled: boolean;
+    facialRecognition: UserConfigFacialRecognitionDto;
+    ocr: UserConfigOcrDto;
+};
+export type UserConfigMapDto = {
+    /** Dark map style URL */
+    darkStyle: string;
+    /** Enabled */
+    enabled: boolean;
+    /** Light map style URL */
+    lightStyle: string;
+};
+export type UserConfigSmtpDto = {
+    /** Whether SMTP email notifications are enabled */
+    enabled: boolean;
+};
+export type UserConfigNotificationsDto = {
+    smtp: UserConfigSmtpDto;
+};
+export type UserConfigOAuthDto = {
+    /** Account management URL */
+    accountManagementUrl?: string;
+    /** Auto launch */
+    autoLaunch: boolean;
+    /** Button text */
+    buttonText: string;
+    /** Enabled */
+    enabled: boolean;
+};
+export type UserConfigPasskeyDto = {
+    /** Enabled */
+    enabled: boolean;
+};
+export type UserConfigPasswordLoginDto = {
+    /** Enabled */
+    enabled: boolean;
+};
+export type UserConfigReverseGeocodingDto = {
+    /** Enabled */
+    enabled: boolean;
+};
+export type UserConfigServerDto = {
+    /** External domain */
+    externalDomain: string;
+    /** Login page message */
+    loginPageMessage: string;
+    /** Public users */
+    publicUsers: boolean;
+};
+export type UserConfigTrashDto = {
+    /** Days */
+    days: number;
+    /** Enabled */
+    enabled: boolean;
+};
+export type UserConfigUserDto = {
+    /** Delete delay */
+    deleteDelay: number;
+};
+export type UserConfigDto = {
+    ffmpeg: UserConfigFFmpegDto;
+    image: UserConfigImageDto;
+    machineLearning: UserConfigMachineLearningDto;
+    map: UserConfigMapDto;
+    notifications: UserConfigNotificationsDto;
+    oauth: UserConfigOAuthDto;
+    passkey: UserConfigPasskeyDto;
+    passwordLogin: UserConfigPasswordLoginDto;
+    reverseGeocoding: UserConfigReverseGeocodingDto;
+    server: UserConfigServerDto;
+    trash: UserConfigTrashDto;
+    user: UserConfigUserDto;
+};
 export type DownloadArchiveDto = {
+    /** The name of the archive to download, without extension */
+    archiveName?: string;
     /** Asset IDs */
     assetIds: string[];
     /** Download edited asset if available */
@@ -1189,6 +1755,8 @@ export type AssetFaceCreateDto = {
     imageWidth: number;
     /** Person ID */
     personId: string;
+    /** User ID */
+    userId?: string;
     /** Face bounding box width */
     width: number;
     /** Face bounding box X coordinate */
@@ -1203,6 +1771,365 @@ export type AssetFaceDeleteDto = {
 export type FaceDto = {
     /** Face ID */
     id: string;
+};
+export type DeviceFlowEventDto = {
+    backendId?: string;
+    reason?: DeviceFlowFailureReason;
+    token?: string;
+    "type": DeviceFlowEventType;
+    userCode?: string;
+    verificationUri?: string;
+};
+export type CreateSessionRequestDto = {
+    token: string;
+};
+export type TicketCreateRequestDto = {
+    action: TicketAction;
+    /** Repository the ticket is bound to */
+    repositoryId: string;
+};
+export type TicketCreateResponseDto = {
+    /** Identity provider URL the browser must be sent to */
+    redirectTo: string;
+};
+export type BackendDto = {
+    description: string;
+    error?: string;
+    id: string;
+    isOnline: boolean;
+    "type": BackendType;
+};
+export type BackendsResponseDto = {
+    backends: BackendDto[];
+};
+export type CreateLocalBackendRequestDto = {
+    path: string;
+};
+export type BackendResponseDto = {
+    backend: BackendDto;
+};
+export type BandwidthDto = {
+    bytesPerSec: number;
+    quietHours?: string;
+};
+export type ConfigResponseDto = {
+    bandwidth: BandwidthDto;
+};
+export type ConfigUpdateRequestDto = {
+    bandwidth: BandwidthDto;
+};
+export type FilesystemListingItemDto = {
+    isDirectory: boolean;
+    path: string;
+};
+export type FilesystemListingResponseDto = {
+    items: FilesystemListingItemDto[];
+    parent: string;
+    path: string;
+};
+export type ImmichIntegrationConfigurationDto = {
+    backupConfiguration: boolean;
+    dataFolders: string[];
+    /** IDs of the external libraries to back up. Use ["all"] to back up every library, including ones added later. */
+    libraries: string[];
+};
+export type ImmichIntegrationDto = {
+    configuration: ImmichIntegrationConfigurationDto;
+    id: string;
+    scheduleId: string;
+};
+export type ImmichLibraryDto = {
+    exclusionPatterns: string[];
+    id: string;
+    importPaths: string[];
+    name: string;
+};
+export type ImmichStateDto = {
+    dataFolders: string[];
+    dataPath: string;
+    libraries: ImmichLibraryDto[];
+};
+export type IntegrationsResponseDto = {
+    immichIntegration?: ImmichIntegrationDto;
+    immichState?: ImmichStateDto;
+};
+export type RetentionPolicyDto = {
+    keepLast?: number;
+    keepWithin?: string;
+    keepWithinDaily?: string;
+    keepWithinHourly?: string;
+    keepWithinMonthly?: string;
+    keepWithinWeekly?: string;
+    keepWithinYearly?: string;
+};
+export type ConfigureImmichIntegrationRequestDto = {
+    backupConfiguration: boolean;
+    cron: string;
+    dataFolders: string[];
+    /** IDs of the external libraries to back up. Use ["all"] to back up every library, including ones added later. */
+    libraries: string[];
+    name: string;
+    paused?: boolean;
+    repositoryId?: string;
+    retentionPolicy?: (RetentionPolicyDto) | null;
+    worm: boolean;
+};
+export type ConfigureImmichIntegrationResponseDto = {
+    repositoryId: string;
+};
+export type ConfigureImmichDatabaseDumpRequestDto = {
+    enabled?: boolean;
+    keepLastAmount?: number;
+};
+export type ImmichRollbackRequestDto = {
+    backupFileName?: string;
+    repositoryId: string;
+    snapshotId: string;
+};
+export type ImmichDatabaseDumpConfigDto = {
+    enabled: boolean;
+    keepLastAmount: number;
+};
+export type JobSummaryDto = {
+    "type": Type;
+    filesNew: number;
+    filesChanged: number;
+    totalFilesProcessed: number;
+    totalBytesProcessed: number;
+    snapshotId?: string;
+} | {
+    "type": Type2;
+    filesRestored: number;
+    filesSkipped: number;
+    bytesRestored: number;
+} | {
+    "type": Type3;
+    kept: number;
+    removed: number;
+};
+export type JobSupportDto = {
+    /** Log lines that could not be streamed in time */
+    droppedLines: number;
+    /** Log lines that could not be written to the local support log */
+    localDroppedLines: number;
+    /** Support code to share with FUTO when the logs were streamed */
+    sessionId?: string;
+};
+export type JobOutcomeDto = {
+    errors: string[];
+    summary?: JobSummaryDto;
+    support?: JobSupportDto;
+};
+export type JobProgressDto = {
+    bytesDone?: number;
+    currentFiles: string[];
+    estimatedEndAt?: string;
+    percentDone: number;
+    scanning: boolean;
+    totalBytes?: number;
+};
+export type JobDto = {
+    end?: string;
+    id: string;
+    name: YuccaJobName;
+    outcome?: JobOutcomeDto;
+    progress?: JobProgressDto;
+    queuedAt: string;
+    repositoryId: string;
+    start?: string;
+    status: YuccaJobStatus;
+};
+export type RepositoryBackendDto = {
+    id: string;
+    online: boolean;
+    "type": BackendType;
+};
+export type RepositoryBackendsDto = {
+    primary: RepositoryBackendDto;
+    secondary: RepositoryBackendDto[];
+};
+export type RepositoryConfigurationDto = {
+    paths: string[];
+    retentionPolicy?: (RetentionPolicyDto) | null;
+};
+export type RepositoryMeterDto = {
+    lastUpdated?: string | null;
+    objectCount: number;
+    sizeBytes: number;
+};
+export type RepositoryMetricsDto = {
+    lastBackup?: string | null;
+    lastBackupDuration?: number | null;
+    lastBackupStatus?: (BackupStatus) | null;
+    lastStarted?: string | null;
+    sizeBytes: number;
+};
+export type LocalRepositoryDto = {
+    backends?: RepositoryBackendsDto;
+    configuration?: RepositoryConfigurationDto;
+    id: string;
+    meter?: RepositoryMeterDto;
+    metrics: RepositoryMetricsDto;
+    name: string;
+    siteCode: string | null;
+    storageClusterCode: string | null;
+    worm: boolean;
+};
+export type ScheduleDto = {
+    cron: string;
+    id: string;
+    lastFinished?: string;
+    lastRun?: string;
+    name: string;
+    paused: boolean;
+    repositories: string[];
+};
+export type ImmichBackupStatusDto = {
+    backend?: BackendDto;
+    databaseDump?: ImmichDatabaseDumpConfigDto;
+    databaseDumpWarningIgnored?: boolean;
+    integration?: ImmichIntegrationDto;
+    latestBackupJob?: JobDto;
+    repository?: LocalRepositoryDto;
+    schedule?: ScheduleDto;
+};
+export type JobListResponseDto = {
+    jobs: JobDto[];
+};
+export type OnboardingStatusResponseDto = {
+    error?: string;
+    hasBackend: boolean;
+    hasBackup: boolean;
+    hasOnboardedKey: boolean;
+    hasSchedule: boolean;
+    hasSkippedExtraConfig: boolean;
+    hasTelemetry: TelemetryLevel;
+    isAuthenticated: boolean;
+    requiresAuthentication: boolean;
+    restoreJobId?: string;
+    status: BootstrapStatus;
+};
+export type CurrentRecoveryKeyResponse = {
+    recoveryKey: string;
+};
+export type ImportRecoveryKeyRequest = {
+    recoveryKey: string;
+};
+export type RepositoryListResponseDto = {
+    repositories: LocalRepositoryDto[];
+};
+export type RepositoryCreateRequestDto = {
+    name: string;
+    paths?: string[];
+    retentionPolicy?: (RetentionPolicyDto) | null;
+    /** Internal site code from environment metadata */
+    site?: string;
+    worm: boolean;
+};
+export type RepositoryCreateResponseDto = {
+    repository: LocalRepositoryDto;
+};
+export type SnapshotSummaryDto = {
+    dataAdded: number;
+    filesChanged: number;
+    filesNew: number;
+    filesUnmodified: number;
+    totalBytes: number;
+    totalFiles: number;
+};
+export type SnapshotDto = {
+    id: string;
+    paths: string[];
+    summary?: SnapshotSummaryDto;
+    tags?: string[];
+    time: string;
+};
+export type InspectedLocalRepositoryDto = {
+    backends?: RepositoryBackendsDto;
+    configuration?: RepositoryConfigurationDto;
+    id: string;
+    meter?: RepositoryMeterDto;
+    metrics: RepositoryMetricsDto;
+    name: string;
+    siteCode: string | null;
+    snapshots?: SnapshotDto[];
+    storageClusterCode: string | null;
+    worm: boolean;
+};
+export type RepositoryInspectResponseDto = {
+    repositories: InspectedLocalRepositoryDto[];
+};
+export type RepositoryUpdateRequestDto = {
+    name?: string;
+    paths?: string[];
+    retentionPolicy?: (RetentionPolicyDto) | null;
+    worm?: boolean;
+};
+export type RepositoryUpdateResponseDto = {
+    repository: LocalRepositoryDto;
+};
+export type JobResponseDto = {
+    jobId: string;
+};
+export type RepositoryPrimaryBackendReconfigureRequestDto = {
+    backendId: string;
+};
+export type RepositoryCheckImportResponseDto = {
+    readable: boolean;
+};
+export type ListSnapshotsResponseDto = {
+    snapshots: SnapshotDto[];
+};
+export type RepositorySnapshotRestoreRequestDto = {
+    include?: string[];
+    target?: string;
+};
+export type RepositorySnapshotRestoreFromPointRequestDto = {
+    include?: string[];
+    yuccaConfig?: string;
+};
+export type RepositorySyncDeletionResponseDto = {
+    /** Whether the repository was deleted remotely and removed from this server */
+    deleted: boolean;
+};
+export type ScheduleListResponseDto = {
+    schedules: ScheduleDto[];
+};
+export type ScheduleCreateRequestDto = {
+    cron: string;
+    name: string;
+    paused?: boolean;
+    repositories: string[];
+};
+export type ScheduleCreateResponseDto = {
+    schedule: ScheduleDto;
+};
+export type ScheduleUpdateRequestDto = {
+    cron?: string;
+    name?: string;
+    paused?: boolean;
+    repositories?: string[];
+};
+export type ScheduleUpdateResponseDto = {
+    schedule: ScheduleDto;
+};
+export type SupportModeResponseDto = {
+    /** Send file paths as-is instead of redacted placeholders */
+    includePaths: boolean;
+    /** How many more backup, cleanup, restore and delete runs use verbose restic logging */
+    remainingRuns: number;
+    /** Stream those runs’ logs to FUTO; requires the support-log-streaming feature */
+    streamToFuto: boolean;
+    /** Whether this account may stream support logs to FUTO */
+    streamingAvailable: boolean;
+};
+export type SupportModeUpdateRequestDto = {
+    /** Send file paths as-is instead of redacted placeholders */
+    includePaths: boolean;
+    /** How many more backup, cleanup, restore and delete runs use verbose restic logging */
+    remainingRuns: number;
+    /** Stream those runs’ logs to FUTO; requires the support-log-streaming feature */
+    streamToFuto: boolean;
 };
 export type QueueStatisticsDto = {
     /** Number of active jobs */
@@ -1331,15 +2258,19 @@ export type MapReverseGeocodeResponseDto = {
     /** State/Province name */
     state: string | null;
 };
-export type OnThisDayDto = {
-    /** Year for on this day memory */
+export type MemoryDataDto = {
+    /** Person ID (birthday memories) */
+    personId?: string;
+    /** Name of the person when the memory was created (birthday memories) */
+    personName?: string;
+    /** Year of the memory */
     year: number;
 };
 export type MemoryResponseDto = {
     assets: AssetResponseDto[];
     /** Creation date */
     createdAt: string;
-    data: OnThisDayDto;
+    data: MemoryDataDto;
     /** Deletion date */
     deletedAt?: string;
     /** Date when memory should be hidden */
@@ -1363,7 +2294,7 @@ export type MemoryResponseDto = {
 export type MemoryCreateDto = {
     /** Asset IDs to associate with memory */
     assetIds?: string[];
-    data: OnThisDayDto;
+    data: MemoryDataDto;
     /** Date when memory should be hidden */
     hideAt?: string;
     /** Is memory saved */
@@ -1449,6 +2380,52 @@ export type PartnerUpdateDto = {
     /** Show partner assets in timeline */
     inTimeline: boolean;
 };
+export type PasskeyResponseDto = {
+    /** Creation date */
+    createdAt: string;
+    /** Passkey ID */
+    id: string;
+    /** Passkey name */
+    name: string | null;
+    /** Last update date */
+    updatedAt: string;
+    /** Last used date */
+    usedAt: string | null;
+};
+export type PasskeyAuthenticationFinishDto = {
+    /** Response returned by @simplewebauthn/browser's `startAuthentication()` */
+    response: {
+        /** Credential ID */
+        id: string;
+        response: {
+            /** User handle */
+            userHandle?: string;
+            [key: string]: any;
+        };
+        [key: string]: any;
+    };
+};
+export type PasskeyAuthenticationOptionsDto = {
+    [key: string]: any;
+};
+export type PasskeyRegistrationFinishDto = {
+    /** Passkey name */
+    name?: string;
+    /** Response returned by @simplewebauthn/browser's `startAuthentication()` */
+    response: any;
+};
+export type PasskeyRegistrationOptionsDto = {
+    [key: string]: any;
+};
+export type PasskeyUpdateDto = {
+    /** Passkey name */
+    name: string | null;
+};
+export type PeopleDeleteDto = {
+    /** IDs to process */
+    ids: string[];
+    userId?: string;
+};
 export type PeopleResponseDto = {
     /** Whether there are more pages */
     hasNextPage?: boolean;
@@ -1485,10 +2462,50 @@ export type PeopleUpdateItem = {
     isHidden?: boolean;
     /** Person name */
     name?: string;
+    /** Restrict the update to the person record of this User ID */
+    userId?: string;
 };
 export type PeopleUpdateDto = {
     /** People to update */
     people: PeopleUpdateItem[];
+};
+export type MergePersonDto = {
+    /** Person IDs to merge */
+    ids: string[];
+};
+export type PersonUsersDeleteDto = {
+    /** Person ID */
+    personId: string;
+    /** User ID of the user that gave access to the person */
+    sharedById?: string;
+    /** User ID of the user that was given access to the person */
+    sharedWithId: string;
+}[];
+export type PersonUsersResponseDto = {
+    /** Person ID */
+    personId: string;
+    /** Access role */
+    role: PersonUserRole;
+    /** The user that gave access to this person */
+    sharedBy: UserResponseDto;
+    /** User ID of the user that gave access to this person */
+    sharedById: string;
+    /** The user that was given access to this person */
+    sharedWith: UserResponseDto;
+    /** User ID of the user that was given access to this person */
+    sharedWithId: string;
+}[];
+export type PeopleUsersUpsertDto = {
+    /** Person IDs, required when type is omitted */
+    personIds?: string[];
+    /** Role that should be applied */
+    role: PersonUserRole;
+    /** User IDs that should be given access to the person */
+    sharedWithIds: string[];
+    "type"?: PeopleUsersUpsertType;
+};
+export type PersonDeleteDto = {
+    userId?: string;
 };
 export type PersonUpdateDto = {
     /** Person date of birth */
@@ -1503,16 +2520,16 @@ export type PersonUpdateDto = {
     isHidden?: boolean;
     /** Person name */
     name?: string;
-};
-export type MergePersonDto = {
-    /** Person IDs to merge */
-    ids: string[];
+    /** Restrict the update to the person record of this User ID */
+    userId?: string;
 };
 export type AssetFaceUpdateItem = {
     /** Asset ID */
     assetId: string;
     /** Person ID */
     personId: string;
+    /** User ID */
+    userId?: string;
 };
 export type AssetFaceUpdateDto = {
     /** Face update items */
@@ -1582,6 +2599,49 @@ export type PluginTemplateResponseDto = {
     /** Ui hints, for example "smart-album" */
     uiHints: string[];
 };
+export type PublicConfigFFmpegRealtimeDto = {
+    /** Enable real-time HLS transcoding (alpha) */
+    enabled: boolean;
+};
+export type PublicConfigFFmpegDto = {
+    realtime: PublicConfigFFmpegRealtimeDto;
+};
+export type PublicConfigMapDto = {
+    /** Dark map style URL */
+    darkStyle: string;
+    /** Enabled */
+    enabled: boolean;
+    /** Light map style URL */
+    lightStyle: string;
+};
+export type PublicConfigOAuthDto = {
+    /** Auto launch */
+    autoLaunch: boolean;
+    /** Button text */
+    buttonText: string;
+    /** Enabled */
+    enabled: boolean;
+};
+export type PublicConfigPasskeyDto = {
+    /** Enabled */
+    enabled: boolean;
+};
+export type PublicConfigPasswordLoginDto = {
+    /** Enabled */
+    enabled: boolean;
+};
+export type PublicConfigServerDto = {
+    /** Login page message */
+    loginPageMessage: string;
+};
+export type PublicConfigDto = {
+    ffmpeg: PublicConfigFFmpegDto;
+    map: PublicConfigMapDto;
+    oauth: PublicConfigOAuthDto;
+    passkey: PublicConfigPasskeyDto;
+    passwordLogin: PublicConfigPasswordLoginDto;
+    server: PublicConfigServerDto;
+};
 export type QueueResponseDto = {
     /** Whether the queue is paused */
     isPaused: boolean;
@@ -1617,6 +2677,168 @@ export type SearchExploreResponseDto = {
     fieldName: string;
     items: SearchExploreItem[];
 };
+export type IdsFilter = {
+    all?: string[];
+    "any"?: string[];
+    none?: string[];
+};
+export type StringFilter = {
+    eq?: string;
+    "in"?: string[];
+    ne?: string;
+    notIn?: string[];
+};
+export type StringFilterNullable = {
+    eq?: string | null;
+    "in"?: string[];
+    ne?: string | null;
+    notIn?: string[];
+};
+export type DateFilter = {
+    eq?: string;
+    gt?: string;
+    gte?: string;
+    lt?: string;
+    lte?: string;
+    ne?: string;
+};
+export type StringPatternFilter = {
+    endsWith?: string;
+    eq?: string | null;
+    "in"?: string[];
+    like?: string;
+    ne?: string | null;
+    notIn?: string[];
+    notLike?: string;
+    startsWith?: string;
+};
+export type NumberFilter = {
+    eq?: number;
+    gt?: number;
+    gte?: number;
+    "in"?: number[];
+    lt?: number;
+    lte?: number;
+    ne?: number;
+    notIn?: number[];
+};
+export type BoolFilter = {
+    eq: boolean;
+};
+export type IdFilter = {
+    eq?: string;
+    ne?: string;
+};
+export type IdFilterNullable = {
+    eq?: string | null;
+    ne?: string | null;
+};
+export type StringSimilarityFilter = {
+    matches: string;
+};
+export type NumberFilterNullable = {
+    eq?: number | null;
+    gt?: number;
+    gte?: number;
+    "in"?: number[];
+    lt?: number;
+    lte?: number;
+    ne?: number | null;
+    notIn?: number[];
+};
+export type DateFilterNullable = {
+    eq?: string | null;
+    gt?: string;
+    gte?: string;
+    lt?: string;
+    lte?: string;
+    ne?: string | null;
+};
+export type EnumFilterAssetType = {
+    eq?: AssetTypeEnum;
+    "in"?: AssetTypeEnum[];
+    ne?: AssetTypeEnum;
+    notIn?: AssetTypeEnum[];
+};
+export type EnumFilterAssetVisibility = {
+    eq?: AssetVisibility;
+    "in"?: AssetVisibility[];
+    ne?: AssetVisibility;
+    notIn?: AssetVisibility[];
+};
+export type SearchFilterBranch = {
+    albumIds?: IdsFilter;
+    checksum?: StringFilter;
+    city?: StringFilterNullable;
+    country?: StringFilterNullable;
+    createdAt?: DateFilter;
+    description?: StringPatternFilter;
+    encodedVideoPath?: StringFilter;
+    fileSizeInBytes?: NumberFilter;
+    hasAlbums?: BoolFilter;
+    hasPeople?: BoolFilter;
+    hasTags?: BoolFilter;
+    id?: IdFilter;
+    isEncoded?: BoolFilter;
+    isFavorite?: BoolFilter;
+    isMotion?: BoolFilter;
+    isOffline?: BoolFilter;
+    lensModel?: StringFilterNullable;
+    libraryId?: IdFilterNullable;
+    make?: StringFilterNullable;
+    model?: StringFilterNullable;
+    ocr?: StringSimilarityFilter;
+    originalFileName?: StringPatternFilter;
+    originalPath?: StringPatternFilter;
+    personIds?: IdsFilter;
+    rating?: NumberFilterNullable;
+    state?: StringFilterNullable;
+    tagIds?: IdsFilter;
+    takenAt?: DateFilter;
+    trashedAt?: DateFilterNullable;
+    "type"?: EnumFilterAssetType;
+    updatedAt?: DateFilter;
+    visibility?: EnumFilterAssetVisibility;
+};
+export type SearchFilter = {
+    albumIds?: IdsFilter;
+    checksum?: StringFilter;
+    city?: StringFilterNullable;
+    country?: StringFilterNullable;
+    createdAt?: DateFilter;
+    description?: StringPatternFilter;
+    encodedVideoPath?: StringFilter;
+    fileSizeInBytes?: NumberFilter;
+    hasAlbums?: BoolFilter;
+    hasPeople?: BoolFilter;
+    hasTags?: BoolFilter;
+    id?: IdFilter;
+    isEncoded?: BoolFilter;
+    isFavorite?: BoolFilter;
+    isMotion?: BoolFilter;
+    isOffline?: BoolFilter;
+    lensModel?: StringFilterNullable;
+    libraryId?: IdFilterNullable;
+    make?: StringFilterNullable;
+    model?: StringFilterNullable;
+    ocr?: StringSimilarityFilter;
+    or?: SearchFilterBranch[];
+    originalFileName?: StringPatternFilter;
+    originalPath?: StringPatternFilter;
+    personIds?: IdsFilter;
+    rating?: NumberFilterNullable;
+    state?: StringFilterNullable;
+    tagIds?: IdsFilter;
+    takenAt?: DateFilter;
+    trashedAt?: DateFilterNullable;
+    "type"?: EnumFilterAssetType;
+    updatedAt?: DateFilter;
+    visibility?: EnumFilterAssetVisibility;
+};
+export type SearchOrder = {
+    direction?: AssetOrder;
+    field?: SearchOrderField;
+};
 export type MetadataSearchDto = {
     /** Filter by album IDs */
     albumIds?: string[];
@@ -1630,10 +2852,13 @@ export type MetadataSearchDto = {
     createdAfter?: string;
     /** Filter by creation date (before) */
     createdBefore?: string;
+    /** Cursor for the next page of results */
+    cursor?: string;
     /** Filter by description text */
     description?: string;
     /** Filter by encoded video file path */
     encodedVideoPath?: string;
+    filter?: SearchFilter;
     /** Filter by asset ID */
     id?: string;
     /** Filter by encoded status */
@@ -1658,6 +2883,7 @@ export type MetadataSearchDto = {
     ocr?: string;
     /** Sort order */
     order?: AssetOrder;
+    orderBy?: SearchOrder;
     /** Filter by original file name */
     originalFileName?: string;
     /** Filter by original file path */
@@ -1725,6 +2951,8 @@ export type SearchAssetResponseDto = {
     count: number;
     facets: SearchFacetResponseDto[];
     items: AssetResponseDto[];
+    /** Cursor for the next page of results */
+    nextCursor: string | null;
     /** Next page token */
     nextPage: string | null;
     /** Total number of matching assets */
@@ -1757,6 +2985,7 @@ export type RandomSearchDto = {
     createdAfter?: string;
     /** Filter by creation date (before) */
     createdBefore?: string;
+    filter?: SearchFilter;
     /** Filter by encoded status */
     isEncoded?: boolean;
     /** Filter by favorite status */
@@ -1821,6 +3050,7 @@ export type SmartSearchDto = {
     createdAfter?: string;
     /** Filter by creation date (before) */
     createdBefore?: string;
+    filter?: SearchFilter;
     /** Filter by encoded status */
     isEncoded?: boolean;
     /** Filter by favorite status */
@@ -1891,6 +3121,7 @@ export type StatisticsSearchDto = {
     createdBefore?: string;
     /** Filter by description text */
     description?: string;
+    filter?: SearchFilter;
     /** Filter by encoded status */
     isEncoded?: boolean;
     /** Filter by favorite status */
@@ -2009,6 +3240,8 @@ export type ServerConfigDto = {
     mapLightStyleUrl: string;
     /** People min faces server default */
     minFaces: number;
+    /** OAuth account management URL */
+    oauthAccountManagementUrl?: string;
     /** OAuth button text */
     oauthButtonText: string;
     /** Whether public user registration is enabled */
@@ -2019,6 +3252,8 @@ export type ServerConfigDto = {
     userDeleteDelay: number;
 };
 export type ServerFeaturesDto = {
+    /** Whether the backups feature is enabled */
+    backups: boolean;
     /** Whether config file is available */
     configFile: boolean;
     /** Whether duplicate detection is enabled */
@@ -2118,6 +3353,8 @@ export type ServerStorageResponseDto = {
     diskUseRaw: number;
 };
 export type ServerVersionResponseDto = {
+    /** Highest feature level supported by the server, which increments independently of the release version */
+    featureLevel: number;
     /** Major version number */
     major: number;
     /** Minor version number */
@@ -2288,357 +3525,6 @@ export type SyncStreamDto = {
     /** Sync request types */
     types: SyncRequestType[];
 };
-export type DatabaseBackupConfig = {
-    /** Cron expression */
-    cronExpression: string;
-    /** Enabled */
-    enabled: boolean;
-    /** Keep last amount */
-    keepLastAmount: number;
-};
-export type SystemConfigBackupsDto = {
-    database: DatabaseBackupConfig;
-};
-export type SystemConfigFFmpegRealtimeDto = {
-    /** Enable real-time HLS transcoding (alpha) */
-    enabled: boolean;
-    /** Resolutions to use for real-time HLS transcoding */
-    resolutions: HlsVideoResolution[];
-    /** Video codecs to use for real-time HLS transcoding */
-    videoCodecs: VideoCodec[];
-};
-export type SystemConfigFFmpegDto = {
-    accel: TranscodeHWAccel;
-    /** Accelerated decode */
-    accelDecode: boolean;
-    /** Accepted audio codecs */
-    acceptedAudioCodecs: AudioCodec[];
-    /** Accepted containers */
-    acceptedContainers: VideoContainer[];
-    /** Accepted video codecs */
-    acceptedVideoCodecs: VideoCodec[];
-    /** B-frames */
-    bframes: number;
-    cqMode: CQMode;
-    /** CRF */
-    crf: number;
-    /** GOP size */
-    gopSize: number;
-    /** Max bitrate */
-    maxBitrate: string;
-    /** Preferred hardware device */
-    preferredHwDevice: string;
-    /** Preset */
-    preset: string;
-    realtime: SystemConfigFFmpegRealtimeDto;
-    /** References */
-    refs: number;
-    targetAudioCodec: AudioCodec;
-    /** Target resolution */
-    targetResolution: string;
-    targetVideoCodec: VideoCodec;
-    /** Temporal AQ */
-    temporalAQ: boolean;
-    /** Threads */
-    threads: number;
-    tonemap: ToneMapping;
-    transcode: TranscodePolicy;
-    /** Two pass */
-    twoPass: boolean;
-};
-export type SystemConfigGeneratedFullsizeImageDto = {
-    /** Enabled */
-    enabled: boolean;
-    format: ImageFormat;
-    /** Progressive */
-    progressive?: boolean;
-    /** Quality */
-    quality: number;
-};
-export type SystemConfigGeneratedImageDto = {
-    format: ImageFormat;
-    /** Progressive */
-    progressive?: boolean;
-    /** Quality */
-    quality: number;
-    /** Size */
-    size: number;
-};
-export type SystemConfigImageDto = {
-    colorspace: Colorspace;
-    /** Extract embedded */
-    extractEmbedded: boolean;
-    fullsize: SystemConfigGeneratedFullsizeImageDto;
-    preview: SystemConfigGeneratedImageDto;
-    thumbnail: SystemConfigGeneratedImageDto;
-};
-export type SystemConfigIntegrityChecksumJob = {
-    /** Cron expression for when the integrity check should run */
-    cronExpression: string;
-    /** Enabled */
-    enabled: boolean;
-    /** Percentage limit of the integrity checksum job */
-    percentageLimit: number;
-    /** How long the integrity checksum job may run for */
-    timeLimit: number;
-};
-export type SystemConfigIntegrityJob = {
-    /** Cron expression for when the integrity check should run */
-    cronExpression: string;
-    /** Enabled */
-    enabled: boolean;
-};
-export type SystemConfigIntegrityChecks = {
-    checksumFiles: SystemConfigIntegrityChecksumJob;
-    missingFiles: SystemConfigIntegrityJob;
-    untrackedFiles: SystemConfigIntegrityJob;
-};
-export type JobSettingsDto = {
-    /** Concurrency */
-    concurrency: number;
-};
-export type SystemConfigJobDto = {
-    backgroundTask: JobSettingsDto;
-    editor: JobSettingsDto;
-    faceDetection: JobSettingsDto;
-    integrityCheck: JobSettingsDto;
-    library: JobSettingsDto;
-    metadataExtraction: JobSettingsDto;
-    migration: JobSettingsDto;
-    notifications: JobSettingsDto;
-    ocr: JobSettingsDto;
-    search: JobSettingsDto;
-    sidecar: JobSettingsDto;
-    smartSearch: JobSettingsDto;
-    thumbnailGeneration: JobSettingsDto;
-    videoConversion: JobSettingsDto;
-    workflow: JobSettingsDto;
-};
-export type SystemConfigLibraryScanDto = {
-    /** Cron expression */
-    cronExpression: string;
-    /** Enabled */
-    enabled: boolean;
-};
-export type SystemConfigLibraryWatchDto = {
-    /** Enabled */
-    enabled: boolean;
-};
-export type SystemConfigLibraryDto = {
-    scan: SystemConfigLibraryScanDto;
-    watch: SystemConfigLibraryWatchDto;
-};
-export type SystemConfigLoggingDto = {
-    /** Enabled */
-    enabled: boolean;
-    level: LogLevel;
-};
-export type MachineLearningAvailabilityChecksDto = {
-    /** Enabled */
-    enabled: boolean;
-    interval: number;
-    timeout: number;
-};
-export type ClipConfig = {
-    /** Whether the task is enabled */
-    enabled: boolean;
-    /** Name of the model to use */
-    modelName: string;
-};
-export type DuplicateDetectionConfig = {
-    /** Whether the task is enabled */
-    enabled: boolean;
-    /** Maximum distance threshold for duplicate detection */
-    maxDistance: number;
-};
-export type FacialRecognitionConfig = {
-    /** Whether the task is enabled */
-    enabled: boolean;
-    /** Maximum distance threshold for face recognition */
-    maxDistance: number;
-    /** Minimum number of faces required for recognition */
-    minFaces: number;
-    /** Minimum confidence score for face detection */
-    minScore: number;
-    /** Name of the model to use */
-    modelName: string;
-};
-export type OcrConfig = {
-    /** Whether the task is enabled */
-    enabled: boolean;
-    /** Maximum resolution for OCR processing */
-    maxResolution: number;
-    /** Minimum confidence score for text detection */
-    minDetectionScore: number;
-    /** Minimum confidence score for text recognition */
-    minRecognitionScore: number;
-    /** Name of the model to use */
-    modelName: string;
-};
-export type SystemConfigMachineLearningDto = {
-    availabilityChecks: MachineLearningAvailabilityChecksDto;
-    clip: ClipConfig;
-    duplicateDetection: DuplicateDetectionConfig;
-    /** Enabled */
-    enabled: boolean;
-    facialRecognition: FacialRecognitionConfig;
-    ocr: OcrConfig;
-    /** ML service URLs */
-    urls: string[];
-};
-export type SystemConfigMapDto = {
-    /** Dark map style URL */
-    darkStyle: string;
-    /** Enabled */
-    enabled: boolean;
-    /** Light map style URL */
-    lightStyle: string;
-};
-export type SystemConfigFacesDto = {
-    /** Import */
-    "import": boolean;
-};
-export type SystemConfigMetadataDto = {
-    faces: SystemConfigFacesDto;
-};
-export type SystemConfigNewVersionCheckDto = {
-    channel: ReleaseChannel;
-    /** Enabled */
-    enabled: boolean;
-};
-export type SystemConfigNightlyTasksDto = {
-    /** Cluster new faces */
-    clusterNewFaces: boolean;
-    /** Database cleanup */
-    databaseCleanup: boolean;
-    /** Generate memories */
-    generateMemories: boolean;
-    /** Missing thumbnails */
-    missingThumbnails: boolean;
-    /** Start time (HH:MM) */
-    startTime: string;
-    /** Sync quota usage */
-    syncQuotaUsage: boolean;
-};
-export type SystemConfigNotificationsDto = {
-    smtp: SystemConfigSmtpDto;
-};
-export type SystemConfigOAuthDto = {
-    /** Allow insecure requests */
-    allowInsecureRequests: boolean;
-    /** Auto launch */
-    autoLaunch: boolean;
-    /** Auto register */
-    autoRegister: boolean;
-    /** Button text */
-    buttonText: string;
-    /** Client ID */
-    clientId: string;
-    /** Client secret */
-    clientSecret: string;
-    /** Default storage quota */
-    defaultStorageQuota: number | null;
-    /** Enabled */
-    enabled: boolean;
-    /** End session endpoint */
-    endSessionEndpoint: string;
-    /** Issuer URL */
-    issuerUrl: string;
-    /** Mobile override enabled */
-    mobileOverrideEnabled: boolean;
-    /** Mobile redirect URI (set to empty string to disable) */
-    mobileRedirectUri: string;
-    /** Profile signing algorithm */
-    profileSigningAlgorithm: string;
-    /** OAuth prompt parameter (e.g. select_account, login, consent) */
-    prompt: string;
-    /** Role claim */
-    roleClaim: string;
-    /** Scope */
-    scope: string;
-    /** Signing algorithm */
-    signingAlgorithm: string;
-    /** Storage label claim */
-    storageLabelClaim: string;
-    /** Storage quota claim */
-    storageQuotaClaim: string;
-    /** Timeout */
-    timeout: number;
-    tokenEndpointAuthMethod: OAuthTokenEndpointAuthMethod;
-};
-export type SystemConfigPasswordLoginDto = {
-    /** Enabled */
-    enabled: boolean;
-};
-export type SystemConfigReverseGeocodingDto = {
-    /** Enabled */
-    enabled: boolean;
-};
-export type SystemConfigServerDto = {
-    /** External domain */
-    externalDomain: string;
-    /** Login page message */
-    loginPageMessage: string;
-    /** Public users */
-    publicUsers: boolean;
-};
-export type SystemConfigStorageTemplateDto = {
-    /** Enabled */
-    enabled: boolean;
-    /** Hash verification enabled */
-    hashVerificationEnabled: boolean;
-    /** Template */
-    template: string;
-};
-export type SystemConfigTemplateEmailsDto = {
-    /** Album invite template */
-    albumInviteTemplate: string;
-    /** Album update template */
-    albumUpdateTemplate: string;
-    /** Welcome template */
-    welcomeTemplate: string;
-};
-export type SystemConfigTemplatesDto = {
-    email: SystemConfigTemplateEmailsDto;
-};
-export type SystemConfigThemeDto = {
-    /** Custom CSS for theming */
-    customCss: string;
-};
-export type SystemConfigTrashDto = {
-    /** Days */
-    days: number;
-    /** Enabled */
-    enabled: boolean;
-};
-export type SystemConfigUserDto = {
-    /** Delete delay */
-    deleteDelay: number;
-};
-export type SystemConfigDto = {
-    backup: SystemConfigBackupsDto;
-    ffmpeg: SystemConfigFFmpegDto;
-    image: SystemConfigImageDto;
-    integrityChecks: SystemConfigIntegrityChecks;
-    job: SystemConfigJobDto;
-    library: SystemConfigLibraryDto;
-    logging: SystemConfigLoggingDto;
-    machineLearning: SystemConfigMachineLearningDto;
-    map: SystemConfigMapDto;
-    metadata: SystemConfigMetadataDto;
-    newVersionCheck: SystemConfigNewVersionCheckDto;
-    nightlyTasks: SystemConfigNightlyTasksDto;
-    notifications: SystemConfigNotificationsDto;
-    oauth: SystemConfigOAuthDto;
-    passwordLogin: SystemConfigPasswordLoginDto;
-    reverseGeocoding: SystemConfigReverseGeocodingDto;
-    server: SystemConfigServerDto;
-    storageTemplate: SystemConfigStorageTemplateDto;
-    templates: SystemConfigTemplatesDto;
-    theme: SystemConfigThemeDto;
-    trash: SystemConfigTrashDto;
-    user: SystemConfigUserDto;
-};
 export type SystemConfigTemplateStorageOptionDto = {
     /** Available day format options for storage template */
     dayOptions: string[];
@@ -2692,6 +3578,8 @@ export type TagBulkAssetsResponseDto = {
 export type TagUpdateDto = {
     /** Tag color (hex) */
     color?: string | null;
+    /** Tag name */
+    name?: string;
 };
 export type TimeBucketAssetResponseDto = {
     /** Array of city names extracted from EXIF GPS data */
@@ -2749,8 +3637,6 @@ export type UserUpdateMeDto = {
     email?: string;
     /** User name */
     name?: string;
-    /** User password (deprecated, use change password endpoint) */
-    password?: string;
 };
 export type OnboardingResponseDto = {
     /** Is user onboarded */
@@ -3046,7 +3932,7 @@ export type SyncAssetFaceV1 = {
     /** Source type */
     sourceType: string;
 };
-export type SyncAssetFaceV2 = {
+export type SyncAssetFaceV3 = {
     /** Asset ID */
     assetId: string;
     /** Bounding box X1 */
@@ -3233,6 +4119,33 @@ export type SyncAuthUserV1 = {
     /** User storage label */
     storageLabel: string | null;
 };
+export type SyncAuthUserV2 = {
+    avatarColor?: (UserAvatarColor) | null;
+    /** User deleted at */
+    deletedAt: string | null;
+    /** User email */
+    email: string;
+    /** User has profile image */
+    hasProfileImage: boolean;
+    /** User ID */
+    id: string;
+    /** User is admin */
+    isAdmin: boolean;
+    /** User name */
+    name: string;
+    /** User OAuth ID */
+    oauthId: string | null;
+    /** User pin code */
+    pinCode: string | null;
+    /** User profile changed at */
+    profileChangedAt: string;
+    /** Quota size in bytes */
+    quotaSizeInBytes: number | null;
+    /** Quota usage in bytes */
+    quotaUsageInBytes: number;
+    /** User storage label */
+    storageLabel: string | null;
+};
 export type SyncCompleteV1 = {};
 export type SyncMemoryAssetDeleteV1 = {
     /** Asset ID */
@@ -3251,6 +4164,33 @@ export type SyncMemoryDeleteV1 = {
     memoryId: string;
 };
 export type SyncMemoryV1 = {
+    /** Created at */
+    createdAt: string;
+    /** Data */
+    data: {
+        [key: string]: any;
+    };
+    /** Deleted at */
+    deletedAt: string | null;
+    /** Hide at */
+    hideAt: string | null;
+    /** Memory ID */
+    id: string;
+    /** Is saved */
+    isSaved: boolean;
+    /** Memory at */
+    memoryAt: string;
+    /** Owner ID */
+    ownerId: string;
+    /** Seen at */
+    seenAt: string | null;
+    /** Show at */
+    showAt: string | null;
+    "type": MemoryTypeV1;
+    /** Updated at */
+    updatedAt: string;
+};
+export type SyncMemoryV2 = {
     /** Created at */
     createdAt: string;
     /** Data */
@@ -3440,6 +4380,43 @@ export function unlinkAllOAuthAccountsAdmin(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchText("/admin/auth/unlink-all", {
         ...opts,
         method: "POST"
+    }));
+}
+/**
+ * Get the admin configuration
+ */
+export function getAdminConfig(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: AdminConfigDto;
+    }>("/admin/config", {
+        ...opts
+    }));
+}
+/**
+ * Update the system configuration
+ */
+export function updateAdminConfig({ adminConfigDto }: {
+    adminConfigDto: AdminConfigDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: AdminConfigDto;
+    }>("/admin/config", oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: adminConfigDto
+    })));
+}
+/**
+ * Get the system configuration defaults
+ */
+export function getAdminConfigDefaults(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: AdminConfigDto;
+    }>("/admin/config/defaults", {
+        ...opts
     }));
 }
 /**
@@ -3649,8 +4626,8 @@ export function getNotificationTemplateAdmin({ name, templateDto }: {
 /**
  * Send test email
  */
-export function sendTestEmailAdmin({ systemConfigSmtpDto }: {
-    systemConfigSmtpDto: SystemConfigSmtpDto;
+export function sendTestEmailAdmin({ adminConfigSmtpDto }: {
+    adminConfigSmtpDto: AdminConfigSmtpDto;
 }, opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
@@ -3658,7 +4635,7 @@ export function sendTestEmailAdmin({ systemConfigSmtpDto }: {
     }>("/admin/notifications/test-email", oazapfts.json({
         ...opts,
         method: "POST",
-        body: systemConfigSmtpDto
+        body: adminConfigSmtpDto
     })));
 }
 /**
@@ -4111,6 +5088,80 @@ export function updateApiKey({ id, apiKeyUpdateDto }: {
         method: "PUT",
         body: apiKeyUpdateDto
     })));
+}
+/**
+ * Rotate an API key
+ */
+export function rotateApiKey({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: ApiKeyCreateResponseDto;
+    }>(`/api-keys/${encodeURIComponent(id)}/rotate`, {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Search asset files
+ */
+export function searchAssetFiles({ assetId, isEdited, isProgressive, isTransparent, $type }: {
+    assetId: string;
+    isEdited?: boolean;
+    isProgressive?: boolean;
+    isTransparent?: boolean;
+    $type?: AssetFileType;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: AssetFileResponseDto[];
+    }>(`/asset-files${QS.query(QS.explode({
+        assetId,
+        isEdited,
+        isProgressive,
+        isTransparent,
+        "type": $type
+    }))}`, {
+        ...opts
+    }));
+}
+/**
+ * Delete an asset file
+ */
+export function deleteAssetFile({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/asset-files/${encodeURIComponent(id)}`, {
+        ...opts,
+        method: "DELETE"
+    }));
+}
+/**
+ * Retrieve an asset file
+ */
+export function getAssetFile({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: AssetFileResponseDto;
+    }>(`/asset-files/${encodeURIComponent(id)}`, {
+        ...opts
+    }));
+}
+/**
+ * Download an asset file
+ */
+export function downloadAssetFile({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchBlob<{
+        status: 200;
+        data: Blob;
+    }>(`/asset-files/${encodeURIComponent(id)}/download`, {
+        ...opts
+    }));
 }
 /**
  * Delete assets
@@ -4672,6 +5723,125 @@ export function validateAccessToken(opts?: Oazapfts.RequestOpts) {
     }));
 }
 /**
+ * Retrieve cluster group requests
+ */
+export function getClusterGroupRequests(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ClusterGroupRequestResponseDto[];
+    }>("/cluster-groups/requests", {
+        ...opts
+    }));
+}
+/**
+ * Decline a cluster group request
+ */
+export function deleteClusterGroupRequest({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/cluster-groups/requests/${encodeURIComponent(id)}`, {
+        ...opts,
+        method: "DELETE"
+    }));
+}
+/**
+ * Accept a cluster group request
+ */
+export function acceptClusterGroupRequest({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/cluster-groups/requests/${encodeURIComponent(id)}/accept`, {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Leave a cluster group
+ */
+export function leaveClusterGroup({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/cluster-groups/${encodeURIComponent(id)}/leave`, {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Regenerate people of users in cluster group
+ */
+export function clusterGroupRegeneratePeople({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/cluster-groups/${encodeURIComponent(id)}/regenerate-people`, {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Retrieve the requests sent by a cluster group
+ */
+export function getClusterGroupRequestsForGroup({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ClusterGroupRequestResponseDto[];
+    }>(`/cluster-groups/${encodeURIComponent(id)}/requests`, {
+        ...opts
+    }));
+}
+/**
+ * Create a cluster group request
+ */
+export function createClusterGroupRequest({ id, clusterGroupRequestCreateDto }: {
+    id: string;
+    clusterGroupRequestCreateDto: ClusterGroupRequestCreateDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ClusterGroupRequestResponseDto;
+    }>(`/cluster-groups/${encodeURIComponent(id)}/requests`, oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: clusterGroupRequestCreateDto
+    })));
+}
+/**
+ * Retrieve the users of a cluster group
+ */
+export function getClusterGroupUsers({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserResponseDto[];
+    }>(`/cluster-groups/${encodeURIComponent(id)}/users`, {
+        ...opts
+    }));
+}
+/**
+ * Get the configuration with user visibility
+ */
+export function getUserConfig(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserConfigDto;
+    }>("/config", {
+        ...opts
+    }));
+}
+/**
+ * Get the default configuration with user visibility
+ */
+export function getUserConfigDefaults(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserConfigDto;
+    }>("/config/defaults", {
+        ...opts
+    }));
+}
+/**
  * Download asset archive
  */
 export function downloadArchive({ key, slug, downloadArchiveDto }: {
@@ -4814,6 +5984,671 @@ export function reassignFacesById({ id, faceDto }: {
         ...opts,
         method: "PUT",
         body: faceDto
+    })));
+}
+/**
+ * Connect a FUTO Backups account
+ */
+export function futoBackupsConnectDeviceFlow(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: DeviceFlowEventDto;
+    }>("/futo-backups/auth/oidc/device", {
+        ...opts
+    }));
+}
+/**
+ * Create session
+ */
+export function futoBackupsCreateSession({ createSessionRequestDto }: {
+    createSessionRequestDto: CreateSessionRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/auth/session", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: createSessionRequestDto
+    })));
+}
+/**
+ * Sign in with FUTO Backups account
+ */
+export function futoBackupsSessionDeviceFlow(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: DeviceFlowEventDto;
+    }>("/futo-backups/auth/session/device", {
+        ...opts
+    }));
+}
+/**
+ * Create a ticket
+ */
+export function futoBackupsCreateTicket({ ticketCreateRequestDto }: {
+    ticketCreateRequestDto: TicketCreateRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: TicketCreateResponseDto;
+    }>("/futo-backups/auth/ticket", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: ticketCreateRequestDto
+    })));
+}
+/**
+ * List backends
+ */
+export function futoBackupsGetBackends(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: BackendsResponseDto;
+    }>("/futo-backups/backend", {
+        ...opts
+    }));
+}
+/**
+ * Create a local backend
+ */
+export function futoBackupsCreateLocalBackend({ createLocalBackendRequestDto }: {
+    createLocalBackendRequestDto: CreateLocalBackendRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: BackendResponseDto;
+    }>("/futo-backups/backend/local", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: createLocalBackendRequestDto
+    })));
+}
+/**
+ * Get backups orchestrator configuration
+ */
+export function futoBackupsGetConfig(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ConfigResponseDto;
+    }>("/futo-backups/config", {
+        ...opts
+    }));
+}
+/**
+ * Update backups orchestrator configuration
+ */
+export function futoBackupsUpdateConfig({ configUpdateRequestDto }: {
+    configUpdateRequestDto: ConfigUpdateRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ConfigResponseDto;
+    }>("/futo-backups/config", oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: configUpdateRequestDto
+    })));
+}
+/**
+ * Reset the backups orchestrator
+ */
+export function futoBackupsResetOrchestrator(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/debug/reset", {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * List files
+ */
+export function futoBackupsGetFileListing({ path }: {
+    path?: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: FilesystemListingResponseDto;
+    }>(`/futo-backups/fs${QS.query(QS.explode({
+        path
+    }))}`, {
+        ...opts
+    }));
+}
+/**
+ * Get backup integrations
+ */
+export function futoBackupsGetIntegrations(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: IntegrationsResponseDto;
+    }>("/futo-backups/integrations", {
+        ...opts
+    }));
+}
+/**
+ * Configure the Immich backup integration
+ */
+export function futoBackupsConfigureImmichIntegration({ configureImmichIntegrationRequestDto }: {
+    configureImmichIntegrationRequestDto: ConfigureImmichIntegrationRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: ConfigureImmichIntegrationResponseDto;
+    }>("/futo-backups/integrations/immich", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: configureImmichIntegrationRequestDto
+    })));
+}
+/**
+ * Configure Immich database dumps
+ */
+export function futoBackupsConfigureImmichDatabaseDump({ configureImmichDatabaseDumpRequestDto }: {
+    configureImmichDatabaseDumpRequestDto: ConfigureImmichDatabaseDumpRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/integrations/immich/database-dump", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: configureImmichDatabaseDumpRequestDto
+    })));
+}
+/**
+ * Ignore the Immich database dump warning
+ */
+export function futoBackupsIgnoreImmichDatabaseDumpWarning(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/integrations/immich/database-dump/ignore-warning", {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Roll Immich back to a snapshot
+ */
+export function futoBackupsStartImmichRollback({ immichRollbackRequestDto }: {
+    immichRollbackRequestDto: ImmichRollbackRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/integrations/immich/rollback", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: immichRollbackRequestDto
+    })));
+}
+/**
+ * Get Immich backup status
+ */
+export function futoBackupsGetImmichBackupStatus(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ImmichBackupStatusDto;
+    }>("/futo-backups/integrations/immich/status", {
+        ...opts
+    }));
+}
+/**
+ * List jobs
+ */
+export function futoBackupsGetJobs({ repositoryId }: {
+    repositoryId: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: JobListResponseDto;
+    }>(`/futo-backups/jobs${QS.query(QS.explode({
+        repositoryId
+    }))}`, {
+        ...opts
+    }));
+}
+/**
+ * Cancel a job
+ */
+export function futoBackupsCancelJob({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/futo-backups/jobs/${encodeURIComponent(id)}`, {
+        ...opts,
+        method: "DELETE"
+    }));
+}
+/**
+ * Get a job
+ */
+export function futoBackupsGetJob({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: JobDto;
+    }>(`/futo-backups/jobs/${encodeURIComponent(id)}`, {
+        ...opts
+    }));
+}
+/**
+ * Download a job log
+ */
+export function futoBackupsDownloadJobLog({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchBlob<{
+        status: 200;
+        data: Blob;
+    }>(`/futo-backups/jobs/${encodeURIComponent(id)}/download`, {
+        ...opts
+    }));
+}
+/**
+ * Download a job support log
+ */
+export function futoBackupsDownloadJobSupportLog({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchBlob<{
+        status: 200;
+        data: Blob;
+    }>(`/futo-backups/jobs/${encodeURIComponent(id)}/support-log/download`, {
+        ...opts
+    }));
+}
+/**
+ * Get backup onboarding status
+ */
+export function futoBackupsOnboardingStatus(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: OnboardingStatusResponseDto;
+    }>("/futo-backups/onboarding", {
+        ...opts
+    }));
+}
+/**
+ * Get the backup recovery key
+ */
+export function futoBackupsCurrentRecoveryKey(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: CurrentRecoveryKeyResponse;
+    }>("/futo-backups/onboarding/recovery-key", {
+        ...opts
+    }));
+}
+/**
+ * Confirm the backup recovery key
+ */
+export function futoBackupsConfirmRecoveryKey(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/onboarding/recovery-key", {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Import a backup recovery key
+ */
+export function futoBackupsImportRecoveryKey({ importRecoveryKeyRequest }: {
+    importRecoveryKeyRequest: ImportRecoveryKeyRequest;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/onboarding/recovery-key", oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: importRecoveryKeyRequest
+    })));
+}
+/**
+ * Report a startup error
+ */
+export function futoBackupsReportError(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/onboarding/report-error", {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Continue after a restore
+ */
+export function futoBackupsContinueAfterRestore(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/onboarding/restore/continue", {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Skip optional backup onboarding
+ */
+export function futoBackupsSkipOnboardingExtraConfig(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/onboarding/skip", {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Enable FUTO Backups telemetry
+ */
+export function futoBackupsEnableTelemetry(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/futo-backups/onboarding/telemetry", {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * List backups
+ */
+export function futoBackupsGetRepositories(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: RepositoryListResponseDto;
+    }>("/futo-backups/repository", {
+        ...opts
+    }));
+}
+/**
+ * Create a new backup
+ */
+export function futoBackupsCreateRepository({ backend, repositoryCreateRequestDto }: {
+    backend?: string;
+    repositoryCreateRequestDto: RepositoryCreateRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: RepositoryCreateResponseDto;
+    }>(`/futo-backups/repository${QS.query(QS.explode({
+        backend
+    }))}`, oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: repositoryCreateRequestDto
+    })));
+}
+/**
+ * List remote backups
+ */
+export function futoBackupsInspectRepositories({ backend }: {
+    backend?: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: RepositoryInspectResponseDto;
+    }>(`/futo-backups/repository/inspect${QS.query(QS.explode({
+        backend
+    }))}`, {
+        ...opts
+    }));
+}
+/**
+ * Remove a backup
+ */
+export function futoBackupsDeleteRepository({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/futo-backups/repository/${encodeURIComponent(id)}`, {
+        ...opts,
+        method: "DELETE"
+    }));
+}
+/**
+ * Update a backup
+ */
+export function futoBackupsUpdateRepository({ backend, id, repositoryUpdateRequestDto }: {
+    backend?: string;
+    id: string;
+    repositoryUpdateRequestDto: RepositoryUpdateRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: RepositoryUpdateResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}${QS.query(QS.explode({
+        backend
+    }))}`, oazapfts.json({
+        ...opts,
+        method: "PATCH",
+        body: repositoryUpdateRequestDto
+    })));
+}
+/**
+ * Start a backup
+ */
+export function futoBackupsCreateBackup({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: JobResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}`, {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Change the primary backend
+ */
+export function futoBackupsReconfigureRepositoryPrimaryBackend({ id, repositoryPrimaryBackendReconfigureRequestDto }: {
+    id: string;
+    repositoryPrimaryBackendReconfigureRequestDto: RepositoryPrimaryBackendReconfigureRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: RepositoryCreateResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/backend`, oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: repositoryPrimaryBackendReconfigureRequestDto
+    })));
+}
+/**
+ * Check a repository import
+ */
+export function futoBackupsCheckImportRepository({ backend, id }: {
+    backend: string;
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: RepositoryCheckImportResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/import${QS.query(QS.explode({
+        backend
+    }))}`, {
+        ...opts
+    }));
+}
+/**
+ * Import a repository
+ */
+export function futoBackupsImportRepository({ backend, id }: {
+    backend: string;
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: RepositoryCreateResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/import${QS.query(QS.explode({
+        backend
+    }))}`, {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * List snapshots
+ */
+export function futoBackupsGetSnapshots({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ListSnapshotsResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/snapshots`, {
+        ...opts
+    }));
+}
+/**
+ * Prune a repository
+ */
+export function futoBackupsPruneRepository({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: JobResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/snapshots/prune`, {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Delete a snapshot
+ */
+export function futoBackupsForgetSnapshot({ id, snapshot }: {
+    id: string;
+    snapshot: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ListSnapshotsResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/snapshots/${encodeURIComponent(snapshot)}`, {
+        ...opts,
+        method: "DELETE"
+    }));
+}
+/**
+ * Restore a snapshot
+ */
+export function futoBackupsRestoreSnapshot({ id, snapshot, repositorySnapshotRestoreRequestDto }: {
+    id: string;
+    snapshot: string;
+    repositorySnapshotRestoreRequestDto: RepositorySnapshotRestoreRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: JobResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/snapshots/${encodeURIComponent(snapshot)}`, oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: repositorySnapshotRestoreRequestDto
+    })));
+}
+/**
+ * List snapshot files
+ */
+export function futoBackupsGetSnapshotListing({ id, path, snapshot }: {
+    id: string;
+    path?: string;
+    snapshot: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: FilesystemListingResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/snapshots/${encodeURIComponent(snapshot)}/listing${QS.query(QS.explode({
+        path
+    }))}`, {
+        ...opts
+    }));
+}
+/**
+ * Restore from snapshot
+ */
+export function futoBackupsRestoreFromPoint({ backend, id, snapshot, repositorySnapshotRestoreFromPointRequestDto }: {
+    backend: string;
+    id: string;
+    snapshot: string;
+    repositorySnapshotRestoreFromPointRequestDto: RepositorySnapshotRestoreFromPointRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: JobResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/snapshots/${encodeURIComponent(snapshot)}/restore-from-point${QS.query(QS.explode({
+        backend
+    }))}`, oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: repositorySnapshotRestoreFromPointRequestDto
+    })));
+}
+/**
+ * Sync a remote deletion
+ */
+export function futoBackupsSyncRepositoryDeletion({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: RepositorySyncDeletionResponseDto;
+    }>(`/futo-backups/repository/${encodeURIComponent(id)}/sync-deletion`, {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * List schedules
+ */
+export function futoBackupsGetSchedules(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ScheduleListResponseDto;
+    }>("/futo-backups/schedule", {
+        ...opts
+    }));
+}
+/**
+ * Create a schedule
+ */
+export function futoBackupsCreateSchedule({ scheduleCreateRequestDto }: {
+    scheduleCreateRequestDto: ScheduleCreateRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: ScheduleCreateResponseDto;
+    }>("/futo-backups/schedule", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: scheduleCreateRequestDto
+    })));
+}
+/**
+ * Delete a schedule
+ */
+export function futoBackupsRemoveSchedule({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/futo-backups/schedule/${encodeURIComponent(id)}`, {
+        ...opts,
+        method: "DELETE"
+    }));
+}
+/**
+ * Update a schedule
+ */
+export function futoBackupsUpdateSchedule({ id, scheduleUpdateRequestDto }: {
+    id: string;
+    scheduleUpdateRequestDto: ScheduleUpdateRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ScheduleUpdateResponseDto;
+    }>(`/futo-backups/schedule/${encodeURIComponent(id)}`, oazapfts.json({
+        ...opts,
+        method: "PATCH",
+        body: scheduleUpdateRequestDto
+    })));
+}
+/**
+ * Get support mode
+ */
+export function futoBackupsGetSupportMode(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: SupportModeResponseDto;
+    }>("/futo-backups/support-mode", {
+        ...opts
+    }));
+}
+/**
+ * Update support mode
+ */
+export function futoBackupsUpdateSupportMode({ supportModeUpdateRequestDto }: {
+    supportModeUpdateRequestDto: SupportModeUpdateRequestDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: SupportModeResponseDto;
+    }>("/futo-backups/support-mode", oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: supportModeUpdateRequestDto
     })));
 }
 /**
@@ -5006,11 +6841,14 @@ export function reverseGeocode({ lat, lon }: {
 /**
  * Retrieve memories
  */
-export function searchMemories({ $for, isSaved, isTrashed, order, size, $type }: {
+export function searchMemories({ $for, id, isSaved, isTrashed, isUpcoming, order, page, size, $type }: {
     $for?: string;
+    id?: string;
     isSaved?: boolean;
     isTrashed?: boolean;
+    isUpcoming?: boolean;
     order?: MemorySearchOrder;
+    page?: number;
     size?: number;
     $type?: MemoryType;
 }, opts?: Oazapfts.RequestOpts) {
@@ -5019,9 +6857,12 @@ export function searchMemories({ $for, isSaved, isTrashed, order, size, $type }:
         data: MemoryResponseDto[];
     }>(`/memories${QS.query(QS.explode({
         "for": $for,
+        id,
         isSaved,
         isTrashed,
+        isUpcoming,
         order,
+        page,
         size,
         "type": $type
     }))}`, {
@@ -5046,11 +6887,14 @@ export function createMemory({ memoryCreateDto }: {
 /**
  * Retrieve memories statistics
  */
-export function memoriesStatistics({ $for, isSaved, isTrashed, order, size, $type }: {
+export function memoriesStatistics({ $for, id, isSaved, isTrashed, isUpcoming, order, page, size, $type }: {
     $for?: string;
+    id?: string;
     isSaved?: boolean;
     isTrashed?: boolean;
+    isUpcoming?: boolean;
     order?: MemorySearchOrder;
+    page?: number;
     size?: number;
     $type?: MemoryType;
 }, opts?: Oazapfts.RequestOpts) {
@@ -5059,9 +6903,12 @@ export function memoriesStatistics({ $for, isSaved, isTrashed, order, size, $typ
         data: MemoryStatisticsResponseDto;
     }>(`/memories/statistics${QS.query(QS.explode({
         "for": $for,
+        id,
         isSaved,
         isTrashed,
+        isUpcoming,
         order,
+        page,
         size,
         "type": $type
     }))}`, {
@@ -5374,24 +7221,138 @@ export function updatePartner({ id, partnerUpdateDto }: {
     })));
 }
 /**
+ * Search passkeys
+ */
+export function searchPasskeys({ id }: {
+    id?: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: PasskeyResponseDto[];
+    }>(`/passkeys${QS.query(QS.explode({
+        id
+    }))}`, {
+        ...opts
+    }));
+}
+/**
+ * Finish passkey authentication
+ */
+export function finishAuthentication({ passkeyAuthenticationFinishDto }: {
+    passkeyAuthenticationFinishDto: PasskeyAuthenticationFinishDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: LoginResponseDto;
+    }>("/passkeys/authentication/finish", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: passkeyAuthenticationFinishDto
+    })));
+}
+/**
+ * Start passkey authentication
+ */
+export function startAuthentication(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: PasskeyAuthenticationOptionsDto;
+    }>("/passkeys/authentication/start", {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Finish passkey registration
+ */
+export function finishRegistration({ passkeyRegistrationFinishDto }: {
+    passkeyRegistrationFinishDto: PasskeyRegistrationFinishDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: PasskeyResponseDto;
+    }>("/passkeys/registration/finish", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: passkeyRegistrationFinishDto
+    })));
+}
+/**
+ * Start passkey registration
+ */
+export function startRegistration(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: PasskeyRegistrationOptionsDto;
+    }>("/passkeys/registration/start", {
+        ...opts,
+        method: "POST"
+    }));
+}
+/**
+ * Delete a passkey
+ */
+export function deletePasskey({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText(`/passkeys/${encodeURIComponent(id)}`, {
+        ...opts,
+        method: "DELETE"
+    }));
+}
+/**
+ * Retrieve a passkey
+ */
+export function getPasskey({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: PasskeyResponseDto;
+    }>(`/passkeys/${encodeURIComponent(id)}`, {
+        ...opts
+    }));
+}
+/**
+ * Update a passkey
+ */
+export function updatePasskey({ id, passkeyUpdateDto }: {
+    id: string;
+    passkeyUpdateDto: PasskeyUpdateDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: PasskeyResponseDto;
+    }>(`/passkeys/${encodeURIComponent(id)}`, oazapfts.json({
+        ...opts,
+        method: "PATCH",
+        body: passkeyUpdateDto
+    })));
+}
+/**
  * Delete people
  */
-export function deletePeople({ bulkIdsDto }: {
-    bulkIdsDto: BulkIdsDto;
+export function deletePeople({ peopleDeleteDto }: {
+    peopleDeleteDto: PeopleDeleteDto;
 }, opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchText("/people", oazapfts.json({
         ...opts,
         method: "DELETE",
-        body: bulkIdsDto
+        body: peopleDeleteDto
     })));
 }
 /**
  * Get all people
  */
-export function getAllPeople({ closestAssetId, closestPersonId, page, size, withHidden }: {
+export function getAllPeople({ closestAssetId, closestPersonId, isFavorite, isHidden, name, page, sharedById, sharedWithId, size, withHidden }: {
     closestAssetId?: string;
     closestPersonId?: string;
+    isFavorite?: boolean;
+    isHidden?: boolean;
+    name?: string;
     page?: number;
+    sharedById?: string;
+    sharedWithId?: string;
     size?: number;
     withHidden?: boolean;
 }, opts?: Oazapfts.RequestOpts) {
@@ -5401,7 +7362,12 @@ export function getAllPeople({ closestAssetId, closestPersonId, page, size, with
     }>(`/people${QS.query(QS.explode({
         closestAssetId,
         closestPersonId,
+        isFavorite,
+        isHidden,
+        name,
         page,
+        sharedById,
+        sharedWithId,
         size,
         withHidden
     }))}`, {
@@ -5439,15 +7405,79 @@ export function updatePeople({ peopleUpdateDto }: {
     })));
 }
 /**
+ * Merge people
+ */
+export function mergePeople({ mergePersonDto }: {
+    mergePersonDto: MergePersonDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: BulkIdResponseDto[];
+    }>("/people/merge", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: mergePersonDto
+    })));
+}
+/**
+ * Remove users from people
+ */
+export function removeUsersFromPeople({ personUsersDeleteDto }: {
+    personUsersDeleteDto: PersonUsersDeleteDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/people/users", oazapfts.json({
+        ...opts,
+        method: "DELETE",
+        body: personUsersDeleteDto
+    })));
+}
+/**
+ * Get people access
+ */
+export function getUsersForPeople({ direction, personId, role, sharedById, sharedWithId }: {
+    direction?: SharingDirection;
+    personId?: string;
+    role?: PersonUserRole;
+    sharedById?: string;
+    sharedWithId?: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: PersonUsersResponseDto;
+    }>(`/people/users${QS.query(QS.explode({
+        direction,
+        personId,
+        role,
+        sharedById,
+        sharedWithId
+    }))}`, {
+        ...opts
+    }));
+}
+/**
+ * Upsert user access
+ */
+export function upsertPeopleUsers({ peopleUsersUpsertDto }: {
+    peopleUsersUpsertDto: PeopleUsersUpsertDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/people/users", oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: peopleUsersUpsertDto
+    })));
+}
+/**
  * Delete person
  */
-export function deletePerson({ id }: {
+export function deletePerson({ id, personDeleteDto }: {
     id: string;
+    personDeleteDto: PersonDeleteDto;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/people/${encodeURIComponent(id)}`, {
+    return oazapfts.ok(oazapfts.fetchText(`/people/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
-        method: "DELETE"
-    }));
+        method: "DELETE",
+        body: personDeleteDto
+    })));
 }
 /**
  * Get a person
@@ -5481,7 +7511,7 @@ export function updatePerson({ id, personUpdateDto }: {
 /**
  * Merge people
  */
-export function mergePerson({ id, mergePersonDto }: {
+export function mergePersonLegacy({ id, mergePersonDto }: {
     id: string;
     mergePersonDto: MergePersonDto;
 }, opts?: Oazapfts.RequestOpts) {
@@ -5613,6 +7643,28 @@ export function getPlugin({ id }: {
         status: 200;
         data: PluginResponseDto;
     }>(`/plugins/${encodeURIComponent(id)}`, {
+        ...opts
+    }));
+}
+/**
+ * Get the public configuration
+ */
+export function getPublicConfig(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: PublicConfigDto;
+    }>("/public/config", {
+        ...opts
+    }));
+}
+/**
+ * Get the public configuration defaults
+ */
+export function getPublicConfigDefaults(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: PublicConfigDto;
+    }>("/public/config/defaults", {
         ...opts
     }));
 }
@@ -6426,7 +8478,7 @@ export function getSyncStream({ syncStreamDto }: {
 export function getConfig(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
-        data: SystemConfigDto;
+        data: AdminConfigDto;
     }>("/system-config", {
         ...opts
     }));
@@ -6434,16 +8486,16 @@ export function getConfig(opts?: Oazapfts.RequestOpts) {
 /**
  * Update system configuration
  */
-export function updateConfig({ systemConfigDto }: {
-    systemConfigDto: SystemConfigDto;
+export function updateConfig({ adminConfigDto }: {
+    adminConfigDto: AdminConfigDto;
 }, opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
-        data: SystemConfigDto;
+        data: AdminConfigDto;
     }>("/system-config", oazapfts.json({
         ...opts,
         method: "PUT",
-        body: systemConfigDto
+        body: adminConfigDto
     })));
 }
 /**
@@ -6452,7 +8504,7 @@ export function updateConfig({ systemConfigDto }: {
 export function getConfigDefaults(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
-        data: SystemConfigDto;
+        data: AdminConfigDto;
     }>("/system-config/defaults", {
         ...opts
     }));
@@ -7140,6 +9192,81 @@ export enum UserAvatarColor {
     Gray = "gray",
     Amber = "amber"
 }
+export enum TranscodeHWAccel {
+    Nvenc = "nvenc",
+    Qsv = "qsv",
+    Vaapi = "vaapi",
+    Rkmpp = "rkmpp",
+    Disabled = "disabled"
+}
+export enum AudioCodec {
+    Mp3 = "mp3",
+    Aac = "aac",
+    Opus = "opus",
+    PcmS16Le = "pcm_s16le"
+}
+export enum VideoContainer {
+    Mov = "mov",
+    Mp4 = "mp4",
+    Ogg = "ogg",
+    Webm = "webm"
+}
+export enum VideoCodec {
+    H264 = "h264",
+    Hevc = "hevc",
+    Vp9 = "vp9",
+    Av1 = "av1"
+}
+export enum CQMode {
+    Auto = "auto",
+    Cqp = "cqp",
+    Icq = "icq"
+}
+export enum HlsVideoResolution {
+    $480 = 480,
+    $720 = 720,
+    $1080 = 1080,
+    $1440 = 1440,
+    $2160 = 2160
+}
+export enum ToneMapping {
+    Hable = "hable",
+    Mobius = "mobius",
+    Reinhard = "reinhard",
+    Disabled = "disabled"
+}
+export enum TranscodePolicy {
+    All = "all",
+    Optimal = "optimal",
+    Bitrate = "bitrate",
+    Required = "required",
+    Disabled = "disabled"
+}
+export enum Colorspace {
+    Srgb = "srgb",
+    P3 = "p3"
+}
+export enum ImageFormat {
+    Jpeg = "jpeg",
+    Jxl = "jxl",
+    Webp = "webp"
+}
+export enum LogLevel {
+    Verbose = "verbose",
+    Debug = "debug",
+    Log = "log",
+    Warn = "warn",
+    Error = "error",
+    Fatal = "fatal"
+}
+export enum ReleaseChannel {
+    Stable = "stable",
+    ReleaseCandidate = "releaseCandidate"
+}
+export enum OAuthTokenEndpointAuthMethod {
+    ClientSecretPost = "client_secret_post",
+    ClientSecretBasic = "client_secret_basic"
+}
 export enum IntegrityReport {
     UntrackedFile = "untracked_file",
     MissingFile = "missing_file",
@@ -7149,7 +9276,8 @@ export enum MaintenanceAction {
     Start = "start",
     End = "end",
     SelectDatabaseRestore = "select_database_restore",
-    RestoreDatabase = "restore_database"
+    RestoreDatabase = "restore_database",
+    Rollback = "rollback"
 }
 export enum StorageFolder {
     EncodedVideo = "encoded-video",
@@ -7171,6 +9299,7 @@ export enum NotificationType {
     SystemMessage = "SystemMessage",
     AlbumInvite = "AlbumInvite",
     AlbumUpdate = "AlbumUpdate",
+    ClusterGroupRequest = "ClusterGroupRequest",
     Custom = "Custom"
 }
 export enum UserStatus {
@@ -7185,6 +9314,10 @@ export enum CalendarHeatmapType {
 export enum AssetOrder {
     Asc = "asc",
     Desc = "desc"
+}
+export enum PersonUpdateStrategy {
+    Self = "self",
+    Everyone = "everyone"
 }
 export enum AssetVisibility {
     Archive = "archive",
@@ -7215,6 +9348,7 @@ export enum Permission {
     ApiKeyRead = "apiKey.read",
     ApiKeyUpdate = "apiKey.update",
     ApiKeyDelete = "apiKey.delete",
+    ApiKeyRotate = "apiKey.rotate",
     AssetRead = "asset.read",
     AssetUpdate = "asset.update",
     AssetDelete = "asset.delete",
@@ -7225,6 +9359,9 @@ export enum Permission {
     AssetUpload = "asset.upload",
     AssetCopy = "asset.copy",
     AssetDerive = "asset.derive",
+    AssetFileRead = "assetFile.read",
+    AssetFileDelete = "assetFile.delete",
+    AssetFileDownload = "assetFile.download",
     AssetEditGet = "asset.edit.get",
     AssetEditCreate = "asset.edit.create",
     AssetEditDelete = "asset.edit.delete",
@@ -7247,6 +9384,15 @@ export enum Permission {
     BackupDownload = "backup.download",
     BackupUpload = "backup.upload",
     BackupDelete = "backup.delete",
+    ClusterGroupRead = "clusterGroup.read",
+    ClusterGroupLeave = "clusterGroup.leave",
+    ClusterGroupAdmin = "clusterGroup.admin",
+    ClusterGroupRequestCreate = "clusterGroupRequest.create",
+    ClusterGroupRequestRead = "clusterGroupRequest.read",
+    ClusterGroupRequestDelete = "clusterGroupRequest.delete",
+    AdminConfigRead = "adminConfig.read",
+    AdminConfigUpdate = "adminConfig.update",
+    UserConfigRead = "userConfig.read",
     DuplicateRead = "duplicate.read",
     DuplicateDelete = "duplicate.delete",
     FaceCreate = "face.create",
@@ -7281,6 +9427,9 @@ export enum Permission {
     PartnerRead = "partner.read",
     PartnerUpdate = "partner.update",
     PartnerDelete = "partner.delete",
+    PasskeyRead = "passkey.read",
+    PasskeyUpdate = "passkey.update",
+    PasskeyDelete = "passkey.delete",
     PersonCreate = "person.create",
     PersonRead = "person.read",
     PersonUpdate = "person.update",
@@ -7362,6 +9511,13 @@ export enum Permission {
     AdminSessionRead = "adminSession.read",
     AdminAuthUnlinkAll = "adminAuth.unlinkAll"
 }
+export enum AssetFileType {
+    Fullsize = "fullsize",
+    Preview = "preview",
+    Thumbnail = "thumbnail",
+    Sidecar = "sidecar",
+    EncodedVideo = "encoded_video"
+}
 export enum AssetMediaStatus {
     Created = "created",
     Duplicate = "duplicate"
@@ -7379,6 +9535,11 @@ export enum AssetJobName {
     RefreshMetadata = "refresh-metadata",
     RegenerateThumbnail = "regenerate-thumbnail",
     TranscodeVideo = "transcode-video"
+}
+export enum PersonUserRole {
+    Read = "read",
+    Write = "write",
+    Admin = "admin"
 }
 export enum AssetTypeEnum {
     Image = "IMAGE",
@@ -7405,6 +9566,68 @@ export enum SourceType {
     MachineLearning = "machine-learning",
     Exif = "exif",
     Manual = "manual"
+}
+export enum DeviceFlowFailureReason {
+    NotConnected = "NOT_CONNECTED",
+    DeviceFlowFailed = "DEVICE_FLOW_FAILED",
+    WrongAccount = "WRONG_ACCOUNT",
+    Unknown = "UNKNOWN"
+}
+export enum DeviceFlowEventType {
+    Start = "START",
+    Success = "SUCCESS",
+    Failure = "FAILURE"
+}
+export enum TicketAction {
+    RepositoryDelete = "repository.delete",
+    RepositoryDisableWorm = "repository.disable-worm"
+}
+export enum BackendType {
+    Yucca = "yucca",
+    Local = "local",
+    S3 = "s3"
+}
+export enum YuccaJobName {
+    RepositoryBackup = "repository-backup",
+    RepositoryPrune = "repository-prune",
+    RepositoryRestore = "repository-restore",
+    RepositoryRestoreFromPoint = "repository-restore-from-point",
+    RepositorySnapshotForget = "repository-snapshot-forget",
+    RepositorySyncMetrics = "repository-sync-metrics"
+}
+export enum Type {
+    Backup = "backup"
+}
+export enum Type2 {
+    Restore = "restore"
+}
+export enum Type3 {
+    Prune = "prune"
+}
+export enum YuccaJobStatus {
+    Queued = "queued",
+    Running = "running",
+    Complete = "complete",
+    Warn = "warn",
+    Failed = "failed",
+    Cancelled = "cancelled",
+    Incomplete = "incomplete"
+}
+export enum BackupStatus {
+    Incomplete = "incomplete",
+    Complete = "complete",
+    Warn = "warn",
+    Failed = "failed",
+    Cancelled = "cancelled"
+}
+export enum TelemetryLevel {
+    Full = "full",
+    None = "none"
+}
+export enum BootstrapStatus {
+    NotReady = "not-ready",
+    Ready = "ready",
+    Error = "error"
 }
 export enum ManualJobName {
     PersonCleanup = "person-cleanup",
@@ -7457,11 +9680,19 @@ export enum MemorySearchOrder {
     Random = "random"
 }
 export enum MemoryType {
-    OnThisDay = "on_this_day"
+    OnThisDay = "on_this_day",
+    Birthday = "birthday"
 }
 export enum PartnerDirection {
     SharedBy = "shared-by",
     SharedWith = "shared-with"
+}
+export enum SharingDirection {
+    SharedBy = "shared-by",
+    SharedWith = "shared-with"
+}
+export enum PeopleUsersUpsertType {
+    Everyone = "everyone"
 }
 export enum WorkflowType {
     AssetV1 = "AssetV1"
@@ -7469,6 +9700,7 @@ export enum WorkflowType {
 export enum WorkflowTrigger {
     AssetCreate = "AssetCreate",
     AssetMetadataExtraction = "AssetMetadataExtraction",
+    AssetOcrExtraction = "AssetOcrExtraction",
     AssetTagged = "AssetTagged"
 }
 export enum QueueJobStatus {
@@ -7476,8 +9708,7 @@ export enum QueueJobStatus {
     Failed = "failed",
     Completed = "completed",
     Delayed = "delayed",
-    Waiting = "waiting",
-    Paused = "paused"
+    Waiting = "waiting"
 }
 export enum JobName {
     AssetDelete = "AssetDelete",
@@ -7496,6 +9727,7 @@ export enum JobName {
     AssetGenerateThumbnailsQueueAll = "AssetGenerateThumbnailsQueueAll",
     AssetGenerateThumbnails = "AssetGenerateThumbnails",
     AuditTableCleanup = "AuditTableCleanup",
+    AuthChallengeCleanup = "AuthChallengeCleanup",
     DatabaseBackup = "DatabaseBackup",
     FacialRecognitionQueueAll = "FacialRecognitionQueueAll",
     FacialRecognition = "FacialRecognition",
@@ -7547,6 +9779,12 @@ export enum JobName {
     IntegrityDeleteReportType = "IntegrityDeleteReportType",
     IntegrityDeleteReports = "IntegrityDeleteReports"
 }
+export enum SearchOrderField {
+    FileCreatedAt = "fileCreatedAt",
+    LocalDateTime = "localDateTime",
+    FileSizeInBytes = "fileSizeInBytes",
+    Rating = "rating"
+}
 export enum SearchSuggestionType {
     Country = "country",
     State = "state",
@@ -7566,6 +9804,7 @@ export enum AssetIdErrorReason {
 }
 export enum SyncEntityType {
     AuthUserV1 = "AuthUserV1",
+    AuthUserV2 = "AuthUserV2",
     UserV1 = "UserV1",
     UserDeleteV1 = "UserDeleteV1",
     AssetV1 = "AssetV1",
@@ -7609,8 +9848,10 @@ export enum SyncEntityType {
     AlbumToAssetDeleteV1 = "AlbumToAssetDeleteV1",
     AlbumToAssetBackfillV1 = "AlbumToAssetBackfillV1",
     MemoryV1 = "MemoryV1",
+    MemoryV2 = "MemoryV2",
     MemoryDeleteV1 = "MemoryDeleteV1",
     MemoryToAssetV1 = "MemoryToAssetV1",
+    MemoryToAssetV2 = "MemoryToAssetV2",
     MemoryToAssetDeleteV1 = "MemoryToAssetDeleteV1",
     StackV1 = "StackV1",
     StackDeleteV1 = "StackDeleteV1",
@@ -7618,6 +9859,7 @@ export enum SyncEntityType {
     PersonDeleteV1 = "PersonDeleteV1",
     AssetFaceV1 = "AssetFaceV1",
     AssetFaceV2 = "AssetFaceV2",
+    AssetFaceV3 = "AssetFaceV3",
     AssetFaceDeleteV1 = "AssetFaceDeleteV1",
     UserMetadataV1 = "UserMetadataV1",
     UserMetadataDeleteV1 = "UserMetadataDeleteV1",
@@ -7640,8 +9882,11 @@ export enum SyncRequestType {
     AssetMetadataV1 = "AssetMetadataV1",
     AssetOcrV1 = "AssetOcrV1",
     AuthUsersV1 = "AuthUsersV1",
+    AuthUsersV2 = "AuthUsersV2",
     MemoriesV1 = "MemoriesV1",
+    MemoriesV2 = "MemoriesV2",
     MemoryToAssetsV1 = "MemoryToAssetsV1",
+    MemoryToAssetsV2 = "MemoryToAssetsV2",
     PartnersV1 = "PartnersV1",
     PartnerAssetsV1 = "PartnerAssetsV1",
     PartnerAssetsV2 = "PartnerAssetsV2",
@@ -7652,81 +9897,8 @@ export enum SyncRequestType {
     PeopleV1 = "PeopleV1",
     AssetFacesV1 = "AssetFacesV1",
     AssetFacesV2 = "AssetFacesV2",
+    AssetFacesV3 = "AssetFacesV3",
     UserMetadataV1 = "UserMetadataV1"
-}
-export enum TranscodeHWAccel {
-    Nvenc = "nvenc",
-    Qsv = "qsv",
-    Vaapi = "vaapi",
-    Rkmpp = "rkmpp",
-    Disabled = "disabled"
-}
-export enum AudioCodec {
-    Mp3 = "mp3",
-    Aac = "aac",
-    Opus = "opus",
-    PcmS16Le = "pcm_s16le"
-}
-export enum VideoContainer {
-    Mov = "mov",
-    Mp4 = "mp4",
-    Ogg = "ogg",
-    Webm = "webm"
-}
-export enum VideoCodec {
-    H264 = "h264",
-    Hevc = "hevc",
-    Vp9 = "vp9",
-    Av1 = "av1"
-}
-export enum CQMode {
-    Auto = "auto",
-    Cqp = "cqp",
-    Icq = "icq"
-}
-export enum HlsVideoResolution {
-    $480 = 480,
-    $720 = 720,
-    $1080 = 1080,
-    $1440 = 1440,
-    $2160 = 2160
-}
-export enum ToneMapping {
-    Hable = "hable",
-    Mobius = "mobius",
-    Reinhard = "reinhard",
-    Disabled = "disabled"
-}
-export enum TranscodePolicy {
-    All = "all",
-    Optimal = "optimal",
-    Bitrate = "bitrate",
-    Required = "required",
-    Disabled = "disabled"
-}
-export enum Colorspace {
-    Srgb = "srgb",
-    P3 = "p3"
-}
-export enum ImageFormat {
-    Jpeg = "jpeg",
-    Webp = "webp"
-}
-export enum LogLevel {
-    Verbose = "verbose",
-    Debug = "debug",
-    Log = "log",
-    Warn = "warn",
-    Error = "error",
-    Fatal = "fatal"
-}
-export enum ReleaseChannel {
-    Stable = "stable",
-    ReleaseCandidate = "releaseCandidate"
-}
-export enum OAuthTokenEndpointAuthMethod {
-    ClientSecretPost = "client_secret_post",
-    ClientSecretBasic = "client_secret_basic"
 }
 export enum AssetOrderBy {
     TakenAt = "takenAt",
@@ -7737,6 +9909,9 @@ export enum WorkflowResult {
     Halted = "halted",
     Error = "error"
 }
+export enum MemoryTypeV1 {
+    OnThisDay = "on_this_day"
+}
 export enum ReleaseType {
     Major = "major",
     Premajor = "premajor",
@@ -7745,6 +9920,10 @@ export enum ReleaseType {
     Patch = "patch",
     Prepatch = "prepatch",
     Prerelease = "prerelease"
+}
+export enum ServerFeatureLevel {
+    FeatureLevel = 1,
+    Passkeys = 2
 }
 export enum UserMetadataKey {
     Preferences = "preferences",

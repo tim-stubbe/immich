@@ -1,18 +1,19 @@
 import { Kysely } from 'kysely';
-import { WorkflowType } from 'src/enum';
-import { AccessRepository } from 'src/repositories/access.repository';
-import { LoggingRepository } from 'src/repositories/logging.repository';
-import { PluginRepository } from 'src/repositories/plugin.repository';
-import { DB } from 'src/schema';
-import { PluginService } from 'src/services/plugin.service';
-import { newMediumService } from 'test/medium.factory';
-import { getKyselyDB } from 'test/utils';
+import { WorkflowType } from 'src/enum.js';
+import { AccessRepository } from 'src/repositories/access.repository.js';
+import { LoggingRepository } from 'src/repositories/logging.repository.js';
+import { PluginRepository } from 'src/repositories/plugin.repository.js';
+import { DB } from 'src/schema/index.js';
+import { PluginService } from 'src/services/plugin.service.js';
+import { newMediumService } from 'test/medium.factory.js';
+import { getKyselyDB } from 'test/utils.js';
 
 let defaultDatabase: Kysely<DB>;
 
 const wasmBytes = Buffer.from('some-wasm-binary-data');
 const sha256hash = Buffer.from('some-manifest-hash');
 
+// eslint-disable-next-line unicorn/no-unnecessary-parameters
 const setup = (db?: Kysely<DB>) => {
   return newMediumService(PluginService, {
     database: db || defaultDatabase,

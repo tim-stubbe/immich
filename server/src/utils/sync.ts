@@ -1,6 +1,6 @@
-import { SyncItem } from 'src/dtos/sync.dto';
-import { SyncEntityType } from 'src/enum';
-import { SyncAck } from 'src/types';
+import type { SyncAck } from 'src/types.js';
+import { SyncItem } from 'src/dtos/sync.dto.js';
+import { SyncEntityType } from 'src/enum.js';
 
 type Impossible<K extends keyof any> = {
   [P in K]: never;
@@ -29,6 +29,6 @@ export const serialize = <T extends keyof SyncItem, D extends SyncItem[T]>({
   type,
   data,
   ids,
-  ackType,
+  ackType = type,
 }: SerializeOptions<T, D>) =>
-  mapJsonLine({ type, data, ack: toAck({ type: ackType ?? type, updateId: ids[0], extraId: ids[1] }) });
+  mapJsonLine({ type, data, ack: toAck({ type: ackType, updateId: ids[0], extraId: ids[1] }) });

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { SystemConfig } from 'src/config';
+import type { ArgOf } from 'src/repositories/event.repository.js';
+import type { JobOf } from 'src/types.js';
+import { OnEvent, OnJob } from 'src/decorators.js';
+import { SystemConfig } from 'src/dtos/config.dto.js';
 
-import { OnEvent, OnJob } from 'src/decorators';
-import { AssetVisibility, DatabaseLock, ImmichWorker, JobName, JobStatus, QueueName } from 'src/enum';
-import { ArgOf } from 'src/repositories/event.repository';
-import { BaseService } from 'src/services/base.service';
-import { JobOf } from 'src/types';
-import { batched, getCLIPModelInfo, isSmartSearchEnabled } from 'src/utils/misc';
+import { AssetVisibility, DatabaseLock, ImmichWorker, JobName, JobStatus, QueueName } from 'src/enum.js';
+import { BaseService } from 'src/services/base.service.js';
+import { batched, getCLIPModelInfo, isSmartSearchEnabled } from 'src/utils/misc.js';
 
 @Injectable()
 export class SmartInfoService extends BaseService {
@@ -92,7 +92,8 @@ export class SmartInfoService extends BaseService {
     }
 
     const asset = await this.assetJobRepository.getForClipEncoding(id);
-    if (!asset || asset.files.length !== 1) {
+    const previewFile = asset?.files.find((file) => file.isEdited) ?? asset?.files[0];
+    if (!asset || !previewFile) {
       return JobStatus.Failed;
     }
 
@@ -100,7 +101,7 @@ export class SmartInfoService extends BaseService {
       return JobStatus.Skipped;
     }
 
-    const embedding = await this.machineLearningRepository.encodeImage(asset.files[0].path, machineLearning.clip);
+    const embedding = await this.machineLearningRepository.encodeImage(previewFile.path, machineLearning.clip);
 
     if (this.databaseRepository.isBusy(DatabaseLock.CLIPDimSize)) {
       this.logger.verbose(`Waiting for CLIP dimension size to be updated`);

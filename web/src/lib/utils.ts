@@ -1,3 +1,9 @@
+import { defaultLang, locales } from '#lib/constants.ts';
+import { authManager } from '#lib/managers/auth-manager.svelte.ts';
+import { alwaysLoadOriginalFile, lang, locale } from '#lib/stores/preferences.store.ts';
+import { isWebCompatibleImage } from '#lib/utils/asset-utils.ts';
+import { handleError } from '#lib/utils/handle-error.ts';
+import { convertBCP47, langs } from '#lib/utils/i18n.ts';
 import {
   AssetMediaSize,
   AssetTypeEnum,
@@ -20,15 +26,9 @@ import {
   type UserResponseDto,
 } from '@immich/sdk';
 import { toastManager, type ActionItem, type IfLike } from '@immich/ui';
+import { DateTime } from 'luxon';
 import { init, register, t } from 'svelte-i18n';
 import { derived, get } from 'svelte/store';
-import { defaultLang, locales } from '$lib/constants';
-import { authManager } from '$lib/managers/auth-manager.svelte';
-import { downloadManager } from '$lib/managers/download-manager.svelte';
-import { alwaysLoadOriginalFile, lang } from '$lib/stores/preferences.store';
-import { isWebCompatibleImage } from '$lib/utils/asset-utils';
-import { handleError } from '$lib/utils/handle-error';
-import { convertBCP47, langs } from '$lib/utils/i18n';
 
 interface DownloadRequestOptions<T = unknown> {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -132,7 +132,7 @@ export const downloadRequest = <TBody = unknown>(options: DownloadRequestOptions
     options = { url: options };
   }
 
-  const { signal, method, url, data: body, onDownloadProgress: onProgress } = options;
+  const { signal, method = 'GET', url, data: body, onDownloadProgress: onProgress } = options;
 
   return new Promise<{ data: Blob; status: number }>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -155,7 +155,7 @@ export const downloadRequest = <TBody = unknown>(options: DownloadRequestOptions
       signal.addEventListener('abort', () => xhr.abort());
     }
 
-    xhr.open(method || 'GET', url);
+    xhr.open(method, url);
     xhr.responseType = 'blob';
 
     if (body) {
@@ -293,15 +293,38 @@ export const downloadUrl = (url: string, filename: string) => {
   URL.revokeObjectURL(url);
 };
 
+export const downloadUrlPost = (url: string, assetIds: string[], archiveName: string) => {
+  const form = document.createElement('form');
+  form.method = 'post';
+  form.action = url;
+  form.target = '_blank';
+
+  function mkInput(name: string, value: string) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.append(input);
+  }
+
+  mkInput('assetIds', assetIds.join(','));
+  mkInput('archiveName', archiveName);
+  mkInput('edited', 'true');
+
+  document.body.append(form);
+  form.submit();
+  form.remove();
+};
+
 export const downloadBlob = (data: Blob, filename: string) => downloadUrl(URL.createObjectURL(data), filename);
 
 export const downloadJson = (data: unknown, filename: string) => {
   const blob = new Blob([JSON.stringify(data, jsonReplacer, 2)], { type: 'application/json' });
   const downloadKey = filename;
-  downloadManager.add(downloadKey, blob.size);
-  downloadManager.update(downloadKey, blob.size);
   downloadBlob(blob, downloadKey);
-  setTimeout(() => downloadManager.clear(downloadKey), 5000);
+
+  const $t = get(t);
+  toastManager.info($t('downloading_filename', { values: { filename } }));
 };
 
 export const oauth = {
@@ -365,9 +388,17 @@ export const handlePromiseError = <T>(promise: Promise<T>): void => {
 
 export const memoryLaneTitle = derived(t, ($t) => {
   return (memory: MemoryResponseDto) => {
-    const now = new Date();
     if (memory.type === MemoryType.OnThisDay) {
-      return $t('years_ago', { values: { years: now.getFullYear() - memory.data.year } });
+      const now = DateTime.now();
+      const memoryDate = DateTime.fromISO(memory.memoryAt, { zone: 'utc' });
+
+      return memoryDate.day === now.day && memoryDate.month === now.month
+        ? $t('years_ago', { values: { years: now.year - memory.data.year } })
+        : memoryDate.toLocaleString(DateTime.DATE_MED, { locale: get(locale) });
+    }
+
+    if (memory.type === MemoryType.Birthday && memory.data.personName) {
+      return $t('birthday_memory_title', { values: { name: memory.data.personName } });
     }
 
     return $t('unknown');

@@ -4,30 +4,21 @@ import { ChildProcess, fork } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { Worker } from 'node:worker_threads';
 import { PostgresError } from 'postgres';
-import { ImmichAdminModule } from 'src/app.module';
-import { DatabaseLock, ExitCode, ImmichWorker, LogLevel, SystemMetadataKey } from 'src/enum';
-import { ConfigRepository } from 'src/repositories/config.repository';
-import { SystemMetadataRepository } from 'src/repositories/system-metadata.repository';
-import { type DB } from 'src/schema';
-import { getKyselyConfig } from 'src/utils/database';
+import { DatabaseLock, ExitCode, ImmichWorker, LogLevel, SystemMetadataKey } from 'src/enum.js';
+import { ConfigRepository } from 'src/repositories/config.repository.js';
+import { SystemMetadataRepository } from 'src/repositories/system-metadata.repository.js';
+import { type DB } from 'src/schema/index.js';
+import { getKyselyConfig } from 'src/utils/database.js';
 
-/**
- * Manages worker lifecycle
- */
+/** Manages worker lifecycle */
 class Workers {
-  /**
-   * Currently running workers
-   */
+  /** Currently running workers */
   workers: Partial<Record<ImmichWorker, { kill: (signal: NodeJS.Signals) => Promise<void> | void }>> = {};
 
-  /**
-   * Fail-safe in case anything dies during restart
-   */
+  /** Fail-safe in case anything dies during restart */
   restarting = false;
 
-  /**
-   * Boot all enabled workers
-   */
+  /** Boot all enabled workers */
   async bootstrap() {
     const isMaintenanceMode = await this.isMaintenanceMode();
     const { workers } = new ConfigRepository().getEnv();
@@ -84,21 +75,22 @@ class Workers {
         return isLocked;
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!isLocked) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     }
 
     await kysely.destroy();
   }
 
   /**
-   * Start an individual worker
-   * @param name Worker
-   */
+  Start an individual worker
+  @param name Worker
+  */
   private startWorker(name: ImmichWorker) {
     console.log(`Starting ${name} worker`);
 
-    // eslint-disable-next-line unicorn/prefer-module
-    const basePath = dirname(__filename);
+    const basePath = dirname(import.meta.filename);
     const workerFile = join(basePath, 'workers', `${name}.js`);
 
     let anyWorker: Worker | ChildProcess;
@@ -162,7 +154,7 @@ class Workers {
   }
 }
 
-function main() {
+async function main() {
   const immichApp = process.argv[2];
   if (immichApp) {
     process.argv.splice(2, 1);
@@ -171,6 +163,10 @@ function main() {
   if (immichApp === 'immich-admin') {
     process.title = 'immich_admin_cli';
     process.env.IMMICH_LOG_LEVEL = LogLevel.Warn;
+
+    // imported lazily, so that the supervisor process does not build the whole application
+    // graph on every start.
+    const { ImmichAdminModule } = await import('./app.module.js');
 
     return CommandFactory.run(ImmichAdminModule);
   }

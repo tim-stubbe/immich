@@ -1,33 +1,33 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
-  import { focusTrap } from '$lib/actions/focus-trap';
-  import { shortcuts } from '$lib/actions/shortcut';
-  import type { Action, OnAction, PreAction } from '$lib/components/asset-viewer/actions/action';
-  import NextAssetAction from '$lib/components/asset-viewer/actions/NextAssetAction.svelte';
-  import PreviousAssetAction from '$lib/components/asset-viewer/actions/PreviousAssetAction.svelte';
-  import AssetViewerNavBar from '$lib/components/asset-viewer/AssetViewerNavBar.svelte';
-  import { preloadManager } from '$lib/components/asset-viewer/PreloadManager.svelte';
-  import OnEvents from '$lib/components/OnEvents.svelte';
-  import { AssetAction, ProjectionType } from '$lib/constants';
-  import { activityManager } from '$lib/managers/activity-manager.svelte';
-  import { assetViewerManager } from '$lib/managers/asset-viewer-manager.svelte';
-  import { authManager } from '$lib/managers/auth-manager.svelte';
-  import { editManager, EditToolType } from '$lib/managers/edit/edit-manager.svelte';
-  import { eventManager } from '$lib/managers/event-manager.svelte';
-  import type { TimelineAsset } from '$lib/managers/timeline-manager/types';
-  import { getAssetActions } from '$lib/services/asset.service';
-  import { faceManager } from '$lib/stores/face.svelte';
-  import { ocrManager } from '$lib/stores/ocr.svelte';
-  import { alwaysLoadOriginalVideo } from '$lib/stores/preferences.store';
-  import { SlideshowNavigation, SlideshowState, slideshowStore } from '$lib/stores/slideshow.store';
-  import { getSharedLink, handlePromiseError } from '$lib/utils';
-  import type { OnUndoDelete } from '$lib/utils/actions';
-  import { navigateToAsset } from '$lib/utils/asset-utils';
-  import { handleError } from '$lib/utils/handle-error';
-  import { navigate } from '$lib/utils/navigation';
-  import { InvocationTracker } from '$lib/utils/invocationTracker';
-  import { SlideshowHistory } from '$lib/utils/slideshow-history';
-  import { toTimelineAsset } from '$lib/utils/timeline-util';
+  import { browser } from '$app/env';
+  import { focusTrap } from '#lib/actions/focus-trap.ts';
+  import { shortcuts } from '#lib/actions/shortcut.ts';
+  import type { Action, OnAction, PreAction } from '#lib/components/asset-viewer/actions/action.ts';
+  import NextAssetAction from '#lib/components/asset-viewer/actions/NextAssetAction.svelte';
+  import PreviousAssetAction from '#lib/components/asset-viewer/actions/PreviousAssetAction.svelte';
+  import AssetViewerNavBar from '#lib/components/asset-viewer/AssetViewerNavBar.svelte';
+  import { preloadManager } from '#lib/components/asset-viewer/PreloadManager.svelte.ts';
+  import OnEvents from '#lib/components/OnEvents.svelte';
+  import { AssetAction, ProjectionType } from '#lib/constants.ts';
+  import { activityManager } from '#lib/managers/activity-manager.svelte.ts';
+  import { assetViewerManager } from '#lib/managers/asset-viewer-manager.svelte.ts';
+  import { authManager } from '#lib/managers/auth-manager.svelte.ts';
+  import { editManager, EditToolType } from '#lib/managers/edit/edit-manager.svelte.ts';
+  import { eventManager } from '#lib/managers/event-manager.svelte.ts';
+  import type { TimelineAsset } from '#lib/managers/timeline-manager/types.ts';
+  import { getAssetActions } from '#lib/services/asset.service.ts';
+  import { faceManager } from '#lib/stores/face.svelte.ts';
+  import { ocrManager } from '#lib/stores/ocr.svelte.ts';
+  import { alwaysLoadOriginalVideo } from '#lib/stores/preferences.store.ts';
+  import { SlideshowNavigation, SlideshowState, slideshowStore } from '#lib/stores/slideshow.store.ts';
+  import { getSharedLink, handlePromiseError } from '#lib/utils.ts';
+  import type { OnUndoDelete } from '#lib/utils/actions.ts';
+  import { navigateToAsset } from '#lib/utils/asset-utils.ts';
+  import { handleError } from '#lib/utils/handle-error.ts';
+  import { navigate } from '#lib/utils/navigation.ts';
+  import { InvocationTracker } from '#lib/utils/invocationTracker.ts';
+  import { SlideshowHistory } from '#lib/utils/slideshow-history.ts';
+  import { toTimelineAsset } from '#lib/utils/timeline-util.ts';
   import {
     AssetTypeEnum,
     getAssetInfo,
@@ -73,7 +73,6 @@
     onAction?: OnAction;
     onUndoDelete?: OnUndoDelete;
     onClose?: (assetId: string) => void;
-    onRemoveFromAlbum?: (assetIds: string[]) => void;
     onRandom?: () => Promise<{ id: string } | undefined>;
   }
 
@@ -89,7 +88,6 @@
     onAction,
     onUndoDelete,
     onClose,
-    onRemoveFromAlbum,
     onRandom,
   }: Props = $props();
 
@@ -99,12 +97,13 @@
     slideshowNavigation,
     slideshowState,
     slideshowRepeat,
+    slideshowAutoplay,
   } = slideshowStore;
   const stackThumbnailSize = 60;
   const stackSelectedThumbnailSize = 65;
 
   let previewStackedAsset: AssetResponseDto | undefined = $state();
-  let stack: StackResponseDto | null = $state(null);
+  let stack: StackResponseDto | undefined = $state();
 
   const asset = $derived(previewStackedAsset ?? cursor.current);
   const nextAsset = $derived(cursor.nextAsset);
@@ -129,7 +128,7 @@
     }
 
     if (!stack?.assets.some(({ id }) => id === asset.id)) {
-      stack = null;
+      stack = undefined;
     }
   };
 
@@ -158,6 +157,32 @@
     const restoredAsset = assets[0];
     await assetViewerManager.setAssetId(restoredAsset.id);
     await navigate({ targetRoute: 'current', assetId: restoredAsset.id });
+  };
+
+  const onStackCreate = (createdStack: StackResponseDto) => {
+    if (createdStack.assets.map((a) => a.id).includes(asset.id)) {
+      stack = createdStack;
+    }
+  };
+
+  const onStackUpdate = (updatedStack: StackResponseDto) => {
+    if (stack?.id !== updatedStack.id) {
+      return;
+    }
+
+    stack = updatedStack;
+    if (!stack.assets.map((a) => a.id).includes(asset.id)) {
+      // current asset was removed from stack, go to primary
+      cursor.current = stack.assets[0];
+    }
+  };
+
+  const onPersonThumbnailReady = async ({ id: personId }: { id: string }) => {
+    if (person && person.id !== personId) {
+      return;
+    }
+    faceManager.clear();
+    await faceManager.getAssetFaces(asset.id);
   };
 
   onMount(() => {
@@ -266,21 +291,18 @@
     if (!stack || !withStacked || assetViewerManager.isShowEditor) {
       return;
     }
-    const assets = stack.assets;
-    const currentIndex = assets.findIndex(({ id }) => id === asset.id);
+    const currentIndex = stack.assets.findIndex(({ id }) => id === asset.id);
     if (currentIndex === -1) {
       return;
     }
     const nextIndex = direction === 'previous' ? currentIndex - 1 : currentIndex + 1;
-    if (nextIndex < 0 || nextIndex >= assets.length) {
+    if (nextIndex < 0 || nextIndex >= stack.assets.length) {
       return;
     }
-    cursor.current = assets[nextIndex];
+    cursor.current = stack.assets[nextIndex];
   };
 
-  /**
-   * Slide show mode
-   */
+  /** Slide show mode */
 
   let assetViewerHtmlElement = $state<HTMLElement>();
 
@@ -296,6 +318,9 @@
 
   const handlePlaySlideshow = async () => {
     slideshowStartAssetId = asset.id;
+    if (!$slideshowAutoplay) {
+      $slideshowState = SlideshowState.PauseSlideshow;
+    }
     try {
       await assetViewerHtmlElement?.requestFullscreen?.();
     } catch (error) {
@@ -325,29 +350,11 @@
     preAction?.(action);
   };
 
-  const handleAction = async (action: Action) => {
+  const handleAction = (action: Action) => {
     switch (action.type) {
       case AssetAction.DELETE:
       case AssetAction.TRASH: {
         eventManager.emit('AssetsDelete', [asset.id]);
-        break;
-      }
-      case AssetAction.REMOVE_ASSET_FROM_STACK: {
-        stack = action.stack;
-        if (stack) {
-          cursor.current = stack.assets[0];
-        }
-        break;
-      }
-      case AssetAction.STACK:
-      case AssetAction.SET_STACK_PRIMARY_ASSET: {
-        stack = action.stack;
-        break;
-      }
-      case AssetAction.SET_PERSON_FEATURED_PHOTO: {
-        const assetInfo = await getAssetInfo({ id: asset.id });
-        cursor.current = { ...asset, people: assetInfo.people };
-        eventManager.emit('AssetUpdate', cursor.current);
         break;
       }
       case AssetAction.RATING: {
@@ -358,10 +365,6 @@
             rating: action.rating,
           },
         };
-        break;
-      }
-      case AssetAction.UNSTACK: {
-        closeViewer();
         break;
       }
       // no default
@@ -434,6 +437,7 @@
     if (assetViewerManager.isPlayingMotionPhoto && asset.livePhotoVideoId) {
       return 'LiveVideoViewer';
     }
+
     if (
       asset.exifInfo?.projectionType === ProjectionType.EQUIRECTANGULAR ||
       (asset.originalPath && asset.originalPath.toLowerCase().endsWith('.insp'))
@@ -452,14 +456,12 @@
       ((album && album.isActivityEnabled) || activityManager.commentCount > 0) &&
       !activityManager.isLoading,
   );
-
   const showOcrButton = $derived(
     $slideshowState === SlideshowState.None &&
       asset.type === AssetTypeEnum.Image &&
       !assetViewerManager.isShowEditor &&
       ocrManager.hasOcrData,
   );
-
   const { Tag, TagPeople } = $derived(getAssetActions($t, asset));
   const showDetailPanel = $derived(
     asset.hasMetadata &&
@@ -486,7 +488,14 @@
 </script>
 
 <CommandPaletteDefaultProvider name={$t('assets')} actions={[Tag, TagPeople]} />
-<OnEvents {onAssetUpdate} {onAssetsUndoArchive} />
+<OnEvents
+  {onAssetUpdate}
+  {onAssetsUndoArchive}
+  {onStackCreate}
+  onStackDelete={() => closeViewer()}
+  {onStackUpdate}
+  {onPersonThumbnailReady}
+/>
 
 <svelte:document
   bind:fullscreenElement
@@ -494,7 +503,7 @@
     { shortcut: { key: 'ArrowUp' }, onShortcut: () => navigateStack('previous') },
     { shortcut: { key: 'ArrowDown' }, onShortcut: () => navigateStack('next') },
   ]}
-/>
+></svelte:document>
 
 <section
   id="immich-asset-viewer"
@@ -514,7 +523,6 @@
         onAction={handleAction}
         {onUndoDelete}
         onClose={onClose ? () => onClose(stack?.primaryAssetId ?? asset.id) : undefined}
-        {onRemoveFromAlbum}
         {isPlayingOriginalVideo}
         {setPlayOriginalVideo}
       />
@@ -637,18 +645,16 @@
   {/if}
 
   {#if stack && withStacked && !assetViewerManager.isShowEditor && $slideshowState === SlideshowState.None}
-    {@const stackedAssets = stack.assets}
     <div id="stack-slideshow" class="absolute bottom-0 col-span-4 col-start-1 w-fit max-w-full">
       <div class="no-wrap horizontal-scrollbar relative flex flex-row overflow-x-auto overflow-y-hidden">
-        {#each stackedAssets as stackedAsset (stackedAsset.id)}
+        {#each stack.assets as stackedAsset (stackedAsset.id)}
           <div
             class={['relative inline-block px-1 pb-2 transition-all']}
             style:bottom={stackedAsset.id === asset.id ? '0' : '-10px'}
           >
             <Thumbnail
-              imageClass={{ 'border-2 border-white': stackedAsset.id === asset.id }}
+              imageClass={stackedAsset.id === asset.id ? 'border-2 border-white' : 'brightness-70'}
               brokenAssetClass="text-xs"
-              dimmed={stackedAsset.id !== asset.id}
               asset={toTimelineAsset(stackedAsset)}
               onClick={() => {
                 cursor.current = stackedAsset;

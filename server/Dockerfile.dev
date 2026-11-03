@@ -1,8 +1,9 @@
 # dev build
-FROM ghcr.io/immich-app/base-server-dev:202607211135@sha256:83c9ff3f7390111596a2dcd24a746c3f8618d58259dbc7aae36618d153462f18 AS dev
+FROM ghcr.io/immich-app/base-server-dev:202610291416@sha256:5f4f9f77059e1cd0182994419a19f4ee045c3fd48e611f5e77623ed63f7aa1e4 AS dev
 
 
-COPY --from=ghcr.io/jdx/mise:2026.8.3@sha256:92dbc3f2573926d8974e4641ad8449f16c323130b9f41c39aff19b7b2f500ef6 /usr/local/bin/mise /usr/local/bin/mise
+COPY --from=ghcr.io/jdx/mise:2026.10.20@sha256:a3023a390ce9d79343741039d35a36aa41e4fe8198464bf8cc9ffd23ae081a24 /usr/local/bin/mise /usr/local/bin/mise
+COPY --from=ghcr.io/immich-app/futo-backups-restic-proxy:commit-6297cf30a3caf4101e1ca74247bb822ab1f56ee0 /usr/local/bin/restic-proxy /usr/local/bin/restic-proxy
 
 RUN echo "devdir=/buildcache/node-gyp" >> /usr/local/etc/npmrc && \
   echo "store-dir=/buildcache/pnpm-store" >> /usr/local/etc/npmrc && \

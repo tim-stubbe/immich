@@ -9,11 +9,11 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ApiBearerAuth, ApiCookieAuth, ApiExtension, ApiOkResponse, ApiQuery, ApiSecurity } from '@nestjs/swagger';
 import { Request } from 'express';
-import { AuthDto } from 'src/dtos/auth.dto';
-import { ApiCustomExtension, ImmichQuery, MetadataKey, Permission } from 'src/enum';
-import { LoggingRepository } from 'src/repositories/logging.repository';
-import { AuthService, LoginDetails } from 'src/services/auth.service';
-import { getUserAgentDetails } from 'src/utils/request';
+import { AuthDto } from 'src/dtos/auth.dto.js';
+import { ApiCustomExtension, ImmichQuery, MetadataKey, Permission } from 'src/enum.js';
+import { LoggingRepository } from 'src/repositories/logging.repository.js';
+import { AuthService, LoginDetails } from 'src/services/auth.service.js';
+import { getUserAgentDetails } from 'src/utils/request.js';
 
 type AdminRoute = { admin?: true };
 type SharedLinkRoute = { sharedLink?: true };
@@ -26,12 +26,12 @@ export type AuthenticatedOptions = AuthorizedRoute | PublicRoute;
 type ReflectorTarget = Parameters<Reflector['get']>[1];
 
 /** Resolves the `@Authenticated()` options of a route handler, with the defaults applied. */
-export const getAuthenticatedOptions = (reflector: Reflector, target: ReflectorTarget) => {
-  const options = reflector.getAllAndOverride<AuthenticatedOptions | undefined>(MetadataKey.AuthRoute, [target]);
+export const getAuthenticatedOptions = (reflector: Reflector, targets: ReflectorTarget[]) => {
+  const options = reflector.getAllAndOverride<AuthenticatedOptions | undefined>(MetadataKey.AuthRoute, targets);
   return options && { sharedLink: false, admin: false, public: false, setup: false, ...options };
 };
 
-export const Authenticated = (options: AuthenticatedOptions = {}): MethodDecorator => {
+export const Authenticated = (options: AuthenticatedOptions = {}): ReturnType<typeof applyDecorators> => {
   const decorators: MethodDecorator[] = [SetMetadata(MetadataKey.AuthRoute, options)];
 
   if (!options.public) {
@@ -97,7 +97,7 @@ export class AuthGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const options = getAuthenticatedOptions(this.reflector, context.getHandler());
+    const options = getAuthenticatedOptions(this.reflector, [context.getHandler(), context.getClass()]);
     if (!options) {
       throw new Error(`Route ${context.getHandler().name} does not declare @Authenticated()`);
     }

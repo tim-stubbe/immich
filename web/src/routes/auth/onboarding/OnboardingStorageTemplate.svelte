@@ -1,20 +1,27 @@
-<script lang="ts">
-  import StorageTemplateSettings from '$lib/components/admin-settings/StorageTemplateSettings.svelte';
-  import FormatMessage from '$lib/elements/FormatMessage.svelte';
-  import { authManager } from '$lib/managers/auth-manager.svelte';
-  import { Link } from '@immich/ui';
+<script module lang="ts">
+  let visited = false;
+
+  const isFirstVisit = () => {
+    const firstVisit = !visited;
+    visited = true;
+    return firstVisit;
+  };
 </script>
 
-<div class="flex flex-col">
+<script lang="ts">
+  import StorageTemplateSettings from '#lib/components/admin-settings/StorageTemplateSettings.svelte';
+  import FormatMessage from '#lib/elements/FormatMessage.svelte';
+  import { authManager } from '#lib/managers/auth-manager.svelte.ts';
+
+  const preselectDate = isFirstVisit();
+</script>
+
+<div class="flex flex-col gap-2">
   <p>
-    <FormatMessage key="admin.storage_template_onboarding_description_v2">
-      {#snippet children({ message })}
-        <Link href="https://docs.immich.app/administration/storage-template">{message}</Link>
-      {/snippet}
-    </FormatMessage>
+    <FormatMessage key="admin.storage_template_onboarding_description_v3" />
   </p>
 
   {#if authManager.authenticated}
-    <StorageTemplateSettings minified duration={0} saveOnClose />
+    <StorageTemplateSettings minified duration={0} saveOnClose {preselectDate} />
   {/if}
 </div>

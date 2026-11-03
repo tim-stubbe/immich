@@ -6,13 +6,8 @@ export enum AssetAction {
   TRASH = 'trash',
   DELETE = 'delete',
   RESTORE = 'restore',
-  STACK = 'stack',
-  UNSTACK = 'unstack',
-  SET_STACK_PRIMARY_ASSET = 'set-stack-primary-asset',
-  REMOVE_ASSET_FROM_STACK = 'remove-asset-from-stack',
   SET_VISIBILITY_LOCKED = 'set-visibility-locked',
   SET_VISIBILITY_TIMELINE = 'set-visibility-timeline',
-  SET_PERSON_FEATURED_PHOTO = 'set-person-featured-photo',
   RATING = 'rating',
 }
 
@@ -34,6 +29,12 @@ export const dateFormats = {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
+    timeZone: 'UTC',
+  } satisfies Intl.DateTimeFormatOptions,
+  albumShort: {
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
   } satisfies Intl.DateTimeFormatOptions,
   settings: {
     month: 'short',
@@ -44,12 +45,18 @@ export const dateFormats = {
 
 export enum QueryParameter {
   ACTION = 'action',
+  ASSET_ID = 'assetId',
   ID = 'id',
+  IS_FAVORITE = 'isFavorite',
+  IS_HIDDEN = 'isHidden',
   IS_OPEN = 'isOpen',
+  IS_SAVED = 'isSaved',
   OPEN_SETTING = 'openSetting',
   PREVIOUS_ROUTE = 'previousRoute',
   QUERY = 'query',
   SEARCHED_PEOPLE = 'searchedPeople',
+  SHARED_BY_ID = 'sharedById',
+  SHARED_WITH_ID = 'sharedWithId',
   SMART_SEARCH = 'smartSearch',
   PAGE = 'page',
   PATH = 'path',
@@ -67,6 +74,7 @@ export enum OpenQueryParam {
   STORAGE_TEMPLATE = 'storage-template',
   NOTIFICATIONS = 'notifications',
   PURCHASE_SETTINGS = 'user-purchase-settings',
+  SHARING = 'sharing',
 }
 
 export const maximumLengthSearchPeople = 100;
@@ -243,7 +251,7 @@ export interface Lang {
   rtl?: boolean;
 }
 
-export const defaultLang: Lang = { name: 'English', code: 'en', loader: () => import('$i18n/en.json') };
+export const defaultLang: Lang = { name: 'English', code: 'en', loader: () => import('#i18n/en.json') };
 
 export enum ImmichProduct {
   Client = 'immich-client',
@@ -256,6 +264,7 @@ export enum SettingInputFieldType {
   NUMBER = 'number',
   PASSWORD = 'password',
   COLOR = 'color',
+  NAME = 'name',
 }
 
 export const AlbumPageViewMode = {
@@ -302,3 +311,12 @@ export enum BackupFileStatus {
 }
 
 export const assetViewerFadeDuration: number = 150;
+
+export const libraryTableClasses = {
+  column1: 'w-4/12',
+  column2: 'w-4/12',
+  column3: 'w-1/12',
+  column4: 'w-1/12',
+  column5: 'w-1/12',
+  column6: 'w-1/12 flex justify-end',
+};

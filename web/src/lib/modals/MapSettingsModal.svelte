@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mapSettings, type MapSettings } from '$lib/stores/preferences.store';
+  import { mapSettings, type MapSettings } from '#lib/stores/preferences.store.ts';
   import { Button, DatePicker, Field, FormModal, Select, Stack, Switch } from '@immich/ui';
   import { DateTime, Duration } from 'luxon';
   import { t } from 'svelte-i18n';
@@ -35,6 +35,9 @@
     </Field>
     <Field label={$t('include_shared_albums')}>
       <Switch bind:checked={settings.withSharedAlbums} />
+    </Field>
+    <Field label={$t('show_asset_panel_on_map')}>
+      <Switch bind:checked={settings.showAssetPanel} />
     </Field>
 
     {#if customDateRange}

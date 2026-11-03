@@ -1,13 +1,10 @@
-import { AssetOrder, AssetOrderBy, getAssetInfo, getTimeBuckets, type AssetResponseDto } from '@immich/sdk';
-import { clamp, isEqual } from 'lodash-es';
-import { SvelteDate, SvelteSet } from 'svelte/reactivity';
-import { VirtualScrollManager } from '$lib/managers/VirtualScrollManager/VirtualScrollManager.svelte';
-import { authManager } from '$lib/managers/auth-manager.svelte';
-import { eventManager } from '$lib/managers/event-manager.svelte';
-import { GroupInsertionCache } from '$lib/managers/timeline-manager/group-insertion-cache.svelte';
-import { updateTimelineMonthViewportProximity } from '$lib/managers/timeline-manager/internal/intersection-support.svelte';
-import { updateGeometry } from '$lib/managers/timeline-manager/internal/layout-support.svelte';
-import { loadFromTimeBuckets } from '$lib/managers/timeline-manager/internal/load-support.svelte';
+import { VirtualScrollManager } from '#lib/managers/VirtualScrollManager/VirtualScrollManager.svelte.ts';
+import { authManager } from '#lib/managers/auth-manager.svelte.ts';
+import { eventManager } from '#lib/managers/event-manager.svelte.ts';
+import { GroupInsertionCache } from '#lib/managers/timeline-manager/group-insertion-cache.svelte.ts';
+import { updateTimelineMonthViewportProximity } from '#lib/managers/timeline-manager/internal/intersection-support.svelte.ts';
+import { updateGeometry } from '#lib/managers/timeline-manager/internal/layout-support.svelte.ts';
+import { loadFromTimeBuckets } from '#lib/managers/timeline-manager/internal/load-support.svelte.ts';
 import {
   findClosestTimelineMonthForDate,
   findTimelineMonthForAsset as findTimelineMonthForAssetUtil,
@@ -15,10 +12,11 @@ import {
   getAssetWithOffset,
   getTimelineMonthByDate,
   retrieveRange as retrieveRangeUtil,
-} from '$lib/managers/timeline-manager/internal/search-support.svelte';
-import { WebsocketSupport } from '$lib/managers/timeline-manager/internal/websocket-support.svelte';
-import { CancellableTask } from '$lib/utils/cancellable-task';
-import { PersistedLocalStorage } from '$lib/utils/persisted';
+} from '#lib/managers/timeline-manager/internal/search-support.svelte.ts';
+import { WebsocketSupport } from '#lib/managers/timeline-manager/internal/websocket-support.svelte.ts';
+import { userPreferencesManager } from '#lib/managers/user-preferences-manager.svelte.ts';
+import { updateStackedAssetInTimeline } from '#lib/utils/actions.ts';
+import { CancellableTask } from '#lib/utils/cancellable-task.ts';
 import {
   getOrderingDate,
   isAssetResponseDto,
@@ -26,7 +24,17 @@ import {
   toTimelineAsset,
   type TimelineDateTime,
   type TimelineYearMonth,
-} from '$lib/utils/timeline-util';
+} from '#lib/utils/timeline-util.ts';
+import {
+  AssetOrder,
+  AssetOrderBy,
+  AssetVisibility,
+  getAssetInfo,
+  getTimeBuckets,
+  type AssetResponseDto,
+} from '@immich/sdk';
+import { clamp, isEqual } from 'lodash-es';
+import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 import { isMismatched, updateObject } from './internal/utils.svelte';
 import { TimelineDay } from './timeline-day.svelte';
 import { TimelineMonth } from './timeline-month.svelte';
@@ -94,19 +102,18 @@ export class TimelineManager extends VirtualScrollManager {
   #options: TimelineManagerOptions = TimelineManager.#INIT_OPTIONS;
   #updatingViewportProximities = false;
   #scrollableElement: HTMLElement | undefined = $state();
-  #showAssetOwners = new PersistedLocalStorage<boolean>('album-show-asset-owners', false);
   #unsubscribes: Array<() => void> = [];
 
   get showAssetOwners() {
-    return this.#showAssetOwners.current;
+    return userPreferencesManager.showAssetOwners;
   }
 
   setShowAssetOwners(value: boolean) {
-    this.#showAssetOwners.current = value;
+    userPreferencesManager.showAssetOwners = value;
   }
 
   toggleShowAssetOwners() {
-    this.#showAssetOwners.current = !this.#showAssetOwners.current;
+    userPreferencesManager.showAssetOwners = !userPreferencesManager.showAssetOwners;
   }
 
   constructor() {
@@ -122,7 +129,46 @@ export class TimelineManager extends VirtualScrollManager {
             this.upsertAssets([timelineAsset]);
           }
         },
-        AssetsUnarchive: (assets) => this.upsertAssets(assets),
+        AssetsArchive: (assetIds) => this.update(assetIds, (asset) => (asset.visibility = AssetVisibility.Archive)),
+        AssetsUnarchive: (assets) => {
+          if (this.#options.visibility === AssetVisibility.Archive) {
+            this.removeAssets(assets.map((asset) => asset.id));
+          } else {
+            this.upsertAssets(assets);
+          }
+        },
+        AlbumRemoveAssets: ({ assetIds, albumIds }) => {
+          if (this.#options.albumId && albumIds.includes(this.#options.albumId)) {
+            this.removeAssets(assetIds);
+          }
+        },
+        StackCreate: (stack) => {
+          if (this.#options.withStacked) {
+            updateStackedAssetInTimeline(this, stack);
+          }
+        },
+        StackDelete: ({ assets }) => {
+          if (!this.#options.withStacked) {
+            return;
+          }
+          this.update(
+            assets.map((asset) => asset.id),
+            (asset) => (asset.stack = null),
+          );
+          this.upsertAssets(assets.map((asset) => toTimelineAsset(asset)));
+        },
+        StackUpdate: (stack) => {
+          if (!this.#options.withStacked) {
+            return;
+          }
+          // unstack and re-stack
+          this.update(
+            stack.assets.map((asset) => asset.id),
+            (asset) => (asset.stack = null),
+          );
+          this.upsertAssets(stack.assets.map((asset) => toTimelineAsset(asset)));
+          updateStackedAssetInTimeline(this, stack);
+        },
       }),
     );
   }
@@ -382,6 +428,12 @@ export class TimelineManager extends VirtualScrollManager {
     this.addAssetsUpsertSegments([...notExcluded]);
   }
 
+  upsertAssetsFromLiveEvent(assets: TimelineAsset[]) {
+    const notUpdated = this.#updateAssets(assets);
+    const insertable = notUpdated.filter((asset) => this.canInsertAssetFromLiveEvent(asset));
+    this.addAssetsUpsertSegments(insertable);
+  }
+
   async findTimelineMonthForAsset(asset: AssetDescriptor | AssetResponseDto) {
     if (!this.isInitialized) {
       await this.initTask.waitUntilExecution();
@@ -462,9 +514,7 @@ export class TimelineManager extends VirtualScrollManager {
     return randomDay.viewerAssets[randomAssetIndex - accumulatedCount].asset;
   }
 
-  /**
-   * Executes callback on assets, handling moves between groups and removals due to filter criteria.
-   */
+  /** Executes callback on assets, handling moves between groups and removals due to filter criteria. */
   update(ids: string[], callback: (asset: TimelineAsset) => void) {
     // eslint-disable-next-line svelte/prefer-svelte-reactivity
     return this.#runAssetCallback(new Set(ids), callback);
@@ -488,11 +538,11 @@ export class TimelineManager extends VirtualScrollManager {
   }
 
   /**
-   * Adds assets to existing segments, creating new segments as needed.
-   *
-   * This is an internal method that assumes the provided assets are not already
-   * present in the timeline. For updating existing assets, use updateAssetOperation().
-   */
+  Adds assets to existing segments, creating new segments as needed.
+  
+  This is an internal method that assumes the provided assets are not already
+  present in the timeline. For updating existing assets, use updateAssetOperation().
+  */
   protected addAssetsUpsertSegments(assets: TimelineAsset[]) {
     if (assets.length === 0) {
       return;
@@ -619,6 +669,19 @@ export class TimelineManager extends VirtualScrollManager {
       (this.#options.tagId && asset.tags && !asset.tags.includes(this.#options.tagId)) ||
       (this.#options.assetFilter !== undefined && !this.#options.assetFilter.has(asset.id))
     );
+  }
+
+  canInsertAssetFromLiveEvent(asset: TimelineAsset) {
+    if (this.isExcluded(asset)) {
+      return false;
+    }
+    if (this.#options.albumId || this.#options.personId || this.#options.timelineAlbumId) {
+      return false;
+    }
+    if (this.#options.userId && !this.#options.withPartners && asset.ownerId !== this.#options.userId) {
+      return false;
+    }
+    return true;
   }
 
   getAssetOrder() {

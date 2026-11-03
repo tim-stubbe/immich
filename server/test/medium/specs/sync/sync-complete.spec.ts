@@ -1,15 +1,16 @@
 import { Kysely } from 'kysely';
 import { DateTime } from 'luxon';
-import { SyncEntityType, SyncRequestType } from 'src/enum';
-import { SyncCheckpointRepository } from 'src/repositories/sync-checkpoint.repository';
-import { DB } from 'src/schema';
-import { toAck } from 'src/utils/sync';
-import { SyncTestContext } from 'test/medium.factory';
-import { getKyselyDB } from 'test/utils';
 import { v7 } from 'uuid';
+import { SyncEntityType, SyncRequestType } from 'src/enum.js';
+import { SyncCheckpointRepository } from 'src/repositories/sync-checkpoint.repository.js';
+import { DB } from 'src/schema/index.js';
+import { toAck } from 'src/utils/sync.js';
+import { SyncTestContext } from 'test/medium.factory.js';
+import { getKyselyDB } from 'test/utils.js';
 
 let defaultDatabase: Kysely<DB>;
 
+// eslint-disable-next-line unicorn/no-unnecessary-parameters
 const setup = async (db?: Kysely<DB>) => {
   const ctx = new SyncTestContext(db || defaultDatabase);
   const { auth, user, session } = await ctx.newSyncAuthUser();

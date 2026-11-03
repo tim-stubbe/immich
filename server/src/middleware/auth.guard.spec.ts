@@ -1,10 +1,10 @@
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Authenticated, AuthGuard } from 'src/middleware/auth.guard';
-import { LoggingRepository } from 'src/repositories/logging.repository';
-import { AuthService } from 'src/services/auth.service';
-import { mockEnvData } from 'test/repositories/config.repository.mock';
-import { newTestService, ServiceMocks } from 'test/utils';
+import { AuthGuard, Authenticated } from 'src/middleware/auth.guard.js';
+import { LoggingRepository } from 'src/repositories/logging.repository.js';
+import { AuthService } from 'src/services/auth.service.js';
+import { mockEnvData } from 'test/repositories/config.repository.mock.js';
+import { ServiceMocks, newTestService } from 'test/utils.js';
 
 class TestController {
   @Authenticated({ public: true, setup: true })
@@ -16,9 +16,15 @@ class TestController {
   undecoratedRoute() {}
 }
 
-const contextFor = (handler: () => void) =>
+@Authenticated({ admin: true })
+class AdminTestController {
+  route() {}
+}
+
+const contextFor = (handler: () => void, controller: object = TestController) =>
   ({
     getHandler: () => handler,
+    getClass: () => controller,
     switchToHttp: () => ({ getRequest: () => ({ headers: {}, query: {}, path: '/' }) }),
   }) as unknown as ExecutionContext;
 
@@ -77,6 +83,20 @@ describe(AuthGuard.name, () => {
       );
 
       expect(authenticate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('class-level @Authenticated()', () => {
+    it('should apply the controller options to its undecorated routes', async () => {
+      const authenticate = vitest.spyOn(authService, 'authenticate').mockResolvedValue({} as never);
+
+      await expect(sut.canActivate(contextFor(AdminTestController.prototype.route, AdminTestController))).resolves.toBe(
+        true,
+      );
+
+      expect(authenticate).toHaveBeenCalledWith(
+        expect.objectContaining({ metadata: expect.objectContaining({ adminRoute: true }) }),
+      );
     });
   });
 });

@@ -4,25 +4,25 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AssetFile } from 'src/database';
-import { AssetMediaStatus, AssetRejectReason, AssetUploadAction } from 'src/dtos/asset-media-response.dto';
-import { AssetMediaCreateDto, AssetMediaSize, UploadFieldName } from 'src/dtos/asset-media.dto';
-import { MapAsset } from 'src/dtos/asset-response.dto';
-import { AssetEditAction } from 'src/dtos/editing.dto';
-import { AssetFileType, AssetType, AssetVisibility, CacheControl, JobName } from 'src/enum';
-import { AuthRequest } from 'src/middleware/auth.guard';
-import { AssetMediaService } from 'src/services/asset-media.service';
-import { UploadBody } from 'src/types';
-import { ASSET_CHECKSUM_CONSTRAINT } from 'src/utils/database';
-import { ImmichFileResponse } from 'src/utils/file';
-import { AssetFileFactory } from 'test/factories/asset-file.factory';
-import { AssetFactory } from 'test/factories/asset.factory';
-import { AuthFactory } from 'test/factories/auth.factory';
-import { authStub } from 'test/fixtures/auth.stub';
-import { fileStub } from 'test/fixtures/file.stub';
-import { userStub } from 'test/fixtures/user.stub';
-import { getForAsset } from 'test/mappers';
-import { newTestService, ServiceMocks } from 'test/utils';
+import type { UploadBody } from 'src/types.js';
+import { AssetFile } from 'src/database.js';
+import { AssetMediaStatus, AssetRejectReason, AssetUploadAction } from 'src/dtos/asset-media-response.dto.js';
+import { AssetMediaCreateDto, AssetMediaSize, UploadFieldName } from 'src/dtos/asset-media.dto.js';
+import { MapAsset } from 'src/dtos/asset-response.dto.js';
+import { AssetEditAction } from 'src/dtos/editing.dto.js';
+import { AssetFileType, AssetType, AssetVisibility, CacheControl, JobName } from 'src/enum.js';
+import { AuthRequest } from 'src/middleware/auth.guard.js';
+import { AssetMediaService } from 'src/services/asset-media.service.js';
+import { ASSET_CHECKSUM_CONSTRAINT } from 'src/utils/database.js';
+import { ImmichFileResponse } from 'src/utils/file.js';
+import { AssetFileFactory } from 'test/factories/asset-file.factory.js';
+import { AssetFactory } from 'test/factories/asset.factory.js';
+import { AuthFactory } from 'test/factories/auth.factory.js';
+import { authStub } from 'test/fixtures/auth.stub.js';
+import { fileStub } from 'test/fixtures/file.stub.js';
+import { userStub } from 'test/fixtures/user.stub.js';
+import { getForAsset } from 'test/mappers.js';
+import { ServiceMocks, newTestService } from 'test/utils.js';
 
 const file1 = Buffer.from('d2947b871a706081be194569951b7db246907957', 'hex');
 
@@ -74,6 +74,7 @@ const validImages = [
   '.heic',
   '.heif',
   '.iiq',
+  '.jfif',
   '.jp2',
   '.jpeg',
   '.jpg',
@@ -180,6 +181,14 @@ describe(AssetMediaService.name, () => {
   describe('getUploadAssetIdByChecksum', () => {
     it('should return if checksum is undefined', async () => {
       await expect(sut.getUploadAssetIdByChecksum(authStub.admin)).resolves.toBe(undefined);
+    });
+
+    it('should reject a shared link without upload permission', async () => {
+      const auth = AuthFactory.from().sharedLink({ allowUpload: false }).build();
+      await expect(sut.getUploadAssetIdByChecksum(auth, file1.toString('hex'))).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
+      expect(mocks.asset.getUploadAssetIdByChecksum).not.toHaveBeenCalled();
     });
 
     it('should handle a non-existent asset', async () => {
@@ -413,6 +422,7 @@ describe(AssetMediaService.name, () => {
         .owner(authStub.user1.user)
         .build();
       const asset = AssetFactory.create({ livePhotoVideoId: motionAsset.id });
+      mocks.access.asset.checkOwnerAccess.mockResolvedValue(new Set([motionAsset.id]));
       mocks.asset.getById.mockResolvedValueOnce(getForAsset(motionAsset));
       mocks.asset.create.mockResolvedValueOnce(asset);
 
@@ -430,6 +440,7 @@ describe(AssetMediaService.name, () => {
     it('should hide the linked motion asset', async () => {
       const motionAsset = AssetFactory.from({ type: AssetType.Video }).owner(authStub.user1.user).build();
       const asset = AssetFactory.create();
+      mocks.access.asset.checkOwnerAccess.mockResolvedValue(new Set([motionAsset.id]));
       mocks.asset.getById.mockResolvedValueOnce(getForAsset(motionAsset));
       mocks.asset.create.mockResolvedValueOnce(asset);
 
@@ -445,6 +456,63 @@ describe(AssetMediaService.name, () => {
         id: motionAsset.id,
         visibility: AssetVisibility.Hidden,
       });
+    });
+
+    it('should link a live photo video that is already in the shared link', async () => {
+      const motionAsset = AssetFactory.from({ type: AssetType.Video }).owner(authStub.user1.user).build();
+      const asset = AssetFactory.create({ livePhotoVideoId: motionAsset.id });
+      const auth = AuthFactory.from(authStub.user1.user).sharedLink({ allowUpload: true }).build();
+      mocks.access.asset.checkSharedLinkAccess.mockResolvedValue(new Set([motionAsset.id]));
+      mocks.access.asset.checkOwnerAccess.mockResolvedValue(new Set([motionAsset.id]));
+      mocks.asset.getById.mockResolvedValueOnce(getForAsset(motionAsset));
+      mocks.asset.create.mockResolvedValueOnce(asset);
+      mocks.sharedLink.addAssets.mockResolvedValue([]);
+
+      await expect(
+        sut.uploadAsset(auth, { ...createDto, livePhotoVideoId: motionAsset.id }, fileStub.livePhotoStill),
+      ).resolves.toEqual({
+        status: AssetMediaStatus.CREATED,
+        id: asset.id,
+      });
+
+      expect(mocks.access.asset.checkSharedLinkAccess).toHaveBeenCalledWith(
+        auth.sharedLink!.id,
+        new Set([motionAsset.id]),
+      );
+      expect(mocks.access.asset.checkOwnerAccess).toHaveBeenCalledWith(auth.user.id, new Set([motionAsset.id]), false);
+      expect(mocks.asset.getById).toHaveBeenCalledWith(motionAsset.id);
+      expect(mocks.asset.update).toHaveBeenCalledWith({ id: motionAsset.id, visibility: AssetVisibility.Hidden });
+      expect(mocks.asset.create).toHaveBeenCalledWith(expect.objectContaining({ livePhotoVideoId: motionAsset.id }));
+    });
+
+    it('should not link a live photo video that is not in the shared link', async () => {
+      const motionAsset = AssetFactory.from({ type: AssetType.Video }).owner(authStub.user1.user).build();
+      const auth = AuthFactory.from(authStub.user1.user).sharedLink({ allowUpload: true }).build();
+      mocks.access.asset.checkSharedLinkAccess.mockResolvedValue(new Set());
+      mocks.access.asset.checkOwnerAccess.mockResolvedValue(new Set([motionAsset.id]));
+
+      await expect(
+        sut.uploadAsset(auth, { ...createDto, livePhotoVideoId: motionAsset.id }, fileStub.livePhotoStill),
+      ).rejects.toThrow('Not found or no asset.update permission');
+
+      expect(mocks.asset.getById).not.toHaveBeenCalled();
+      expect(mocks.asset.update).not.toHaveBeenCalled();
+      expect(mocks.asset.create).not.toHaveBeenCalled();
+    });
+
+    it('should not link a live photo video in the shared link that is owned by another user', async () => {
+      const motionAsset = AssetFactory.from({ type: AssetType.Video }).build();
+      const auth = AuthFactory.from(authStub.user1.user).sharedLink({ allowUpload: true }).build();
+      mocks.access.asset.checkSharedLinkAccess.mockResolvedValue(new Set([motionAsset.id]));
+      mocks.access.asset.checkOwnerAccess.mockResolvedValue(new Set());
+
+      await expect(
+        sut.uploadAsset(auth, { ...createDto, livePhotoVideoId: motionAsset.id }, fileStub.livePhotoStill),
+      ).rejects.toThrow('Not found or no asset.update permission');
+
+      expect(mocks.asset.getById).not.toHaveBeenCalled();
+      expect(mocks.asset.update).not.toHaveBeenCalled();
+      expect(mocks.asset.create).not.toHaveBeenCalled();
     });
 
     it('should handle a sidecar file', async () => {

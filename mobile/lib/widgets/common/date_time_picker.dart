@@ -1,13 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:immich_mobile/extensions/build_context_extensions.dart';
+import 'package:immich_mobile/extensions/datetime_extensions.dart';
 import 'package:immich_mobile/extensions/duration_extensions.dart';
 import 'package:immich_mobile/generated/translations.g.dart';
 import 'package:immich_mobile/widgets/common/dropdown_search_menu.dart';
 import 'package:intl/intl.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/timezone.dart';
+
+part 'date_time_picker.freezed.dart';
 
 Future<String?> showDateTimePicker({
   required BuildContext context,
@@ -105,7 +109,7 @@ class _DateTimePicker extends HookWidget {
     }
 
     void popWithDateTime() {
-      final formattedDateTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(date.value);
+      final formattedDateTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss", 'en').format(date.value);
       final dtWithOffset =
           formattedDateTime + Duration(milliseconds: tzOffset.value.offsetInMilliseconds).formatAsOffset();
       context.pop(dtWithOffset);
@@ -146,7 +150,10 @@ class _DateTimePicker extends HookWidget {
               1,
             ),
             trailing: Icon(Icons.edit_outlined, size: 18, color: context.primaryColor),
-            title: Text(DateFormat("dd-MM-yyyy hh:mm a").format(date.value), style: context.textTheme.bodyMedium),
+            title: Text(
+              DateFormat("dd-MM-yyyy hh:mm a", resolvedDateTimeLocale()).format(date.value),
+              style: context.textTheme.bodyMedium,
+            ),
             onTap: pickDate,
           ),
           const SizedBox(height: 24),
@@ -165,39 +172,20 @@ class _DateTimePicker extends HookWidget {
   }
 }
 
-class _TimeZoneOffset implements Comparable<_TimeZoneOffset> {
-  final String display;
-  final Location location;
+@freezed
+abstract class _TimeZoneOffset with _$TimeZoneOffset implements Comparable<_TimeZoneOffset> {
+  const _TimeZoneOffset._();
 
-  const _TimeZoneOffset({required this.display, required this.location});
+  const factory _TimeZoneOffset({required String display, required Location location}) = __TimeZoneOffset;
 
-  _TimeZoneOffset copyWith({String? display, Location? location}) {
-    return _TimeZoneOffset(display: display ?? this.display, location: location ?? this.location);
-  }
+  factory _TimeZoneOffset.fromLocation(tz.Location l) =>
+      _TimeZoneOffset(display: _getFormattedOffset(l.currentTimeZone.offset, l), location: l);
 
   int get offsetInMilliseconds => location.currentTimeZone.offset;
 
-  _TimeZoneOffset.fromLocation(tz.Location l)
-    : display = _getFormattedOffset(l.currentTimeZone.offset, l),
-      location = l;
-
   @override
   int compareTo(_TimeZoneOffset other) {
-    return offsetInMilliseconds.compareTo(other.offsetInMilliseconds);
+    final offset = offsetInMilliseconds.compareTo(other.offsetInMilliseconds);
+    return offset != 0 ? offset : location.name.compareTo(other.location.name);
   }
-
-  @override
-  String toString() => '_TimeZoneOffset(display: $display, location: $location)';
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-
-    return other is _TimeZoneOffset && other.display == display && other.offsetInMilliseconds == offsetInMilliseconds;
-  }
-
-  @override
-  int get hashCode => display.hashCode ^ offsetInMilliseconds.hashCode ^ location.hashCode;
 }

@@ -1,15 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:immich_mobile/domain/models/memory.model.dart';
 import 'package:immich_mobile/infrastructure/repositories/memory.repository.dart';
 
 import '../repository_context.dart';
 
 void main() {
   late MediumRepositoryContext ctx;
-  late DriftMemoryRepository sut;
+  late MemoryRepository sut;
 
   setUp(() {
     ctx = MediumRepositoryContext();
-    sut = DriftMemoryRepository(ctx.db);
+    sut = MemoryRepository(ctx.db);
   });
 
   tearDown(() async {
@@ -103,6 +104,18 @@ void main() {
       final result = await sut.getAll(user.id);
 
       expect(result, isEmpty);
+    });
+
+    test('includes a birthday memory with its person name', () async {
+      final user = await ctx.newUser();
+      final asset = await ctx.newRemoteAsset(ownerId: user.id);
+      final memory = await ctx.newMemory(ownerId: user.id, type: MemoryTypeEnum.birthday, personName: 'Alice');
+      await ctx.newMemoryAsset(memoryId: memory.id, assetId: asset.id);
+
+      final result = await sut.getAll(user.id);
+
+      expect(result.single.type, MemoryTypeEnum.birthday);
+      expect(result.single.data.personName, 'Alice');
     });
   });
 }

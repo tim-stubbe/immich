@@ -1,9 +1,10 @@
 import { join } from 'node:path';
-import { SystemConfig } from 'src/config';
-import { StorageCore } from 'src/cores/storage.core';
-import { StorageFolder } from 'src/enum';
-import { CryptoRepository } from 'src/repositories/crypto.repository';
-import { MediaRepository } from 'src/repositories/media.repository';
+import { THUMBNAIL_DECODING_TIER } from 'src/constants.js';
+import { StorageCore } from 'src/cores/storage.core.js';
+import { SystemConfig } from 'src/dtos/config.dto.js';
+import { StorageFolder } from 'src/enum.js';
+import { CryptoRepository } from 'src/repositories/crypto.repository.js';
+import { MediaRepository } from 'src/repositories/media.repository.js';
 
 type Repos = {
   media: MediaRepository;
@@ -23,8 +24,9 @@ export const generateProfileImage = async (
   );
   storageCore.ensureFolders(outputPath);
 
+  const decoded = await media.decodeImage(input, { colorspace: image.colorspace, processInvalidImages: false });
   await media.generateThumbnail(
-    input,
+    decoded,
     {
       colorspace: image.colorspace,
       format: image.thumbnail.format,
@@ -32,6 +34,7 @@ export const generateProfileImage = async (
       progressive: image.thumbnail.progressive,
       size: image.thumbnail.size,
       processInvalidImages: false,
+      decodingTier: THUMBNAIL_DECODING_TIER,
     },
     outputPath,
   );

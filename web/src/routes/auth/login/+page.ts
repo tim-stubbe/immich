@@ -1,8 +1,9 @@
+import { authManager } from '#lib/managers/auth-manager.svelte.ts';
+import { readPreloadedQuery } from '#lib/queries/client.ts';
+import { getServerConfigQuery } from '#lib/queries/server-info.query.ts';
+import { Route } from '#lib/route.ts';
+import { getFormatter } from '#lib/utils/i18n.ts';
 import { redirect } from '@sveltejs/kit';
-import { authManager } from '$lib/managers/auth-manager.svelte';
-import { serverConfigManager } from '$lib/managers/server-config-manager.svelte';
-import { Route } from '$lib/route';
-import { getFormatter } from '$lib/utils/i18n';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ parent, url }) => {
@@ -14,7 +15,7 @@ export const load = (async ({ parent, url }) => {
     redirect(307, continueUrl);
   }
 
-  if (!serverConfigManager.value.isInitialized) {
+  if (!readPreloadedQuery(getServerConfigQuery()).isInitialized) {
     // Admin not registered
     redirect(307, Route.register());
   }

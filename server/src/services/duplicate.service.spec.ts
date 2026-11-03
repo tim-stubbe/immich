@@ -1,14 +1,14 @@
 import { BadRequestException } from '@nestjs/common';
-import { BulkIdErrorReason } from 'src/dtos/asset-ids.response.dto';
-import { MapAsset } from 'src/dtos/asset-response.dto';
-import { AssetType, AssetVisibility, JobName, JobStatus } from 'src/enum';
-import { DuplicateService } from 'src/services/duplicate.service';
-import { AssetFactory } from 'test/factories/asset.factory';
-import { authStub } from 'test/fixtures/auth.stub';
-import { getForDuplicate } from 'test/mappers';
-import { newUuid } from 'test/small.factory';
-import { makeStream, newTestService, ServiceMocks } from 'test/utils';
 import { beforeEach, describe, expect, it, vitest } from 'vitest';
+import { BulkIdErrorReason } from 'src/dtos/asset-ids.response.dto.js';
+import { MapAsset } from 'src/dtos/asset-response.dto.js';
+import { AssetType, AssetVisibility, JobName, JobStatus } from 'src/enum.js';
+import { DuplicateService } from 'src/services/duplicate.service.js';
+import { AssetFactory } from 'test/factories/asset.factory.js';
+import { authStub } from 'test/fixtures/auth.stub.js';
+import { getForDuplicate } from 'test/mappers.js';
+import { newUuid } from 'test/small.factory.js';
+import { ServiceMocks, makeStream, newTestService } from 'test/utils.js';
 
 vitest.useFakeTimers();
 
@@ -231,6 +231,28 @@ describe(DuplicateService.name, () => {
           error: BulkIdErrorReason.NOT_FOUND,
         },
       ]);
+    });
+
+    it('should only load the assets owned by the user', async () => {
+      const asset = AssetFactory.create();
+      mocks.access.duplicate.checkOwnerAccess.mockResolvedValue(new Set(['group-1']));
+      mocks.duplicateRepository.get.mockResolvedValue({
+        duplicateId: 'group-1',
+        assets: [asset as unknown as MapAsset],
+      });
+
+      mocks.access.asset.checkOwnerAccess.mockResolvedValue(new Set([asset.id]));
+
+      const result = await sut.resolve(authStub.admin, {
+        groups: [{ duplicateId: 'group-1', keepAssetIds: ['other-user-asset'], trashAssetIds: [asset.id] }],
+      });
+
+      expect(mocks.duplicateRepository.get).toHaveBeenCalledWith(authStub.admin.user.id, 'group-1');
+      expect(result[0].success).toBe(true);
+      expect(mocks.asset.updateAllExif).not.toHaveBeenCalled();
+      for (const [ids] of mocks.asset.updateAll.mock.calls) {
+        expect(ids).toEqual([asset.id]);
+      }
     });
 
     it('should skip when keepAssetIds contains non-member', async () => {

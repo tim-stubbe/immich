@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:immich_mobile/domain/models/asset/asset_metadata.model.dart';
 import 'package:immich_mobile/domain/models/asset/base_asset.model.dart' hide AssetVisibility;
 import 'package:immich_mobile/domain/models/store.model.dart';
+import 'package:immich_mobile/domain/services/asset.service.dart';
 import 'package:immich_mobile/entities/store.entity.dart';
 import 'package:immich_mobile/extensions/network_capability_extensions.dart';
 import 'package:immich_mobile/extensions/platform_extensions.dart';
@@ -15,6 +16,8 @@ import 'package:immich_mobile/infrastructure/repositories/backup.repository.dart
 import 'package:immich_mobile/infrastructure/repositories/settings.repository.dart';
 import 'package:immich_mobile/infrastructure/repositories/storage.repository.dart';
 import 'package:immich_mobile/platform/connectivity_api.g.dart';
+import 'package:immich_mobile/providers/infrastructure/asset.provider.dart';
+import 'package:immich_mobile/providers/infrastructure/db.provider.dart';
 import 'package:immich_mobile/providers/infrastructure/platform.provider.dart';
 import 'package:immich_mobile/providers/infrastructure/storage.provider.dart';
 import 'package:immich_mobile/repositories/asset_media.repository.dart';
@@ -39,9 +42,10 @@ final foregroundUploadServiceProvider = Provider((ref) {
   return ForegroundUploadService(
     ref.watch(uploadRepositoryProvider),
     ref.watch(storageRepositoryProvider),
-    ref.watch(backupRepositoryProvider),
+    ref.watch(driftProvider).backupRepository,
     ref.watch(connectivityApiProvider),
     ref.watch(assetMediaRepositoryProvider),
+    ref.watch(assetServiceProvider),
   );
 });
 
@@ -57,13 +61,15 @@ class ForegroundUploadService {
     this._backupRepository,
     this._connectivityApi,
     this._assetMediaRepository,
+    this._assetService,
   );
 
   final UploadRepository _uploadRepository;
   final StorageRepository _storageRepository;
-  final DriftBackupRepository _backupRepository;
+  final BackupRepository _backupRepository;
   final ConnectivityApi _connectivityApi;
   final AssetMediaRepository _assetMediaRepository;
+  final AssetService _assetService;
   final Logger _logger = Logger('ForegroundUploadService');
 
   bool shouldAbortUpload = false;
@@ -176,6 +182,7 @@ class ForegroundUploadService {
         if (result.isSuccess) {
           onSuccess?.call(fileId, result.remoteAssetId!);
         } else if (!result.isCancelled && result.errorMessage != null) {
+          _logger.warning("Error(${result.statusCode}) uploading $fileId", result.error ?? result.errorMessage);
           onError?.call(fileId, result.errorMessage!);
         }
       },
@@ -249,6 +256,12 @@ class ForegroundUploadService {
     File? livePhotoFile;
 
     try {
+      final remoteId = (await _assetService.getLocalAsset(asset.id))?.remoteId;
+      if (remoteId != null) {
+        await _handleUploadSuccess(asset, remoteId, callbacks);
+        return;
+      }
+
       final entity = await _storageRepository.getAssetEntityForAsset(asset);
       if (entity == null) {
         callbacks.onError?.call(asset.localId!, assetNotFoundOnDevice);
@@ -377,13 +390,14 @@ class ForegroundUploadService {
       );
 
       if (result.isSuccess && result.remoteAssetId != null) {
-        callbacks.onSuccess?.call(asset.localId!, result.remoteAssetId!);
+        await _handleUploadSuccess(asset, result.remoteAssetId!, callbacks);
       } else if (result.isCancelled) {
         shouldAbortUpload = true;
       } else if (result.errorMessage != null) {
         _logger.severe(
           () =>
-              "Error(${result.statusCode}) uploading ${asset.localId} | $originalFileName | Created on ${asset.createdAt} | ${result.errorMessage}",
+              "Error(${result.statusCode}) uploading ${asset.localId} | $originalFileName | Created on ${asset.createdAt}",
+          result.error ?? result.errorMessage,
         );
 
         callbacks.onError?.call(asset.localId!, result.errorMessage!);
@@ -404,6 +418,15 @@ class ForegroundUploadService {
           _logger.severe(() => "ERROR deleting file: $error", stackTrace);
         }
       }
+    }
+  }
+
+  Future<void> _handleUploadSuccess(LocalAsset asset, String remoteId, UploadCallbacks callbacks) async {
+    callbacks.onSuccess?.call(asset.localId!, remoteId);
+    try {
+      await _assetService.stackEditedUpload(asset.localId!, remoteId, asset.checksum);
+    } catch (error) {
+      _logger.warning("Failed to stack the upload of ${asset.localId}: $error");
     }
   }
 

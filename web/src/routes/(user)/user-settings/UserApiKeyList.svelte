@@ -1,41 +1,29 @@
 <script lang="ts">
-  import OnEvents from '$lib/components/OnEvents.svelte';
-  import TableButton from '$lib/components/TableButton.svelte';
-  import { dateFormats } from '$lib/constants';
-  import { getApiKeyActions, getApiKeysActions } from '$lib/services/api-key.service';
-  import { locale } from '$lib/stores/preferences.store';
-  import { getApiKeys, type ApiKeyResponseDto } from '@immich/sdk';
+  import TableButton from '#lib/components/TableButton.svelte';
+  import { dateFormats } from '#lib/constants.ts';
+  import { getApiKeysQuery } from '#lib/queries/api-key.query.ts';
+  import { createPreloadedQuery } from '#lib/queries/client.ts';
+  import { getApiKeyActions, getApiKeysActions } from '#lib/services/api-key.service.ts';
+  import { locale } from '#lib/stores/preferences.store.ts';
   import { Button, Table, TableBody, TableCell, TableHeader, TableHeading, TableRow, Text } from '@immich/ui';
   import { t } from 'svelte-i18n';
   import { fade } from 'svelte/transition';
 
-  type Props = {
-    keys: ApiKeyResponseDto[];
-  };
-
-  let { keys = $bindable() }: Props = $props();
-
-  const onApiKeyCreate = async () => {
-    keys = await getApiKeys();
-  };
-
-  const onApiKeyUpdate = (update: ApiKeyResponseDto) => {
-    keys = keys.map((key) => (key.id === update.id ? update : key));
-  };
-
-  const onApiKeyDelete = ({ id }: ApiKeyResponseDto) => {
-    keys = keys.filter((key) => key.id !== id);
-  };
+  const query = createPreloadedQuery(getApiKeysQuery);
+  const keys = $derived(query.data);
 
   const { Create } = $derived(getApiKeysActions($t));
 </script>
 
-<OnEvents {onApiKeyCreate} {onApiKeyUpdate} {onApiKeyDelete} />
-
 <section class="my-4">
   <div class="flex flex-col gap-2 sm:ms-8" in:fade={{ duration: 500 }}>
     <div class="mb-2 flex justify-end">
-      <Button leadingIcon={Create.icon} shape="round" size="small" onclick={() => Create.onAction(Create)}>
+      <Button
+        leadingIcon={Create.icon}
+        shape="round"
+        size="small"
+        onclick={(event: MouseEvent) => Create.onAction({ event, action: Create })}
+      >
         {Create.title}
       </Button>
     </div>
@@ -51,7 +39,7 @@
 
         <TableBody>
           {#each keys as key (key.id)}
-            {@const { Update, Delete } = getApiKeyActions($t, key)}
+            {const { Update, Rotate, Delete } = $derived(getApiKeyActions($t, key))}
             <TableRow>
               <TableCell>{key.name}</TableCell>
               <TableCell>
@@ -64,6 +52,7 @@
               <TableCell>{new Date(key.createdAt).toLocaleDateString($locale, dateFormats.settings)}</TableCell>
               <TableCell class="flex flex-row flex-wrap justify-center gap-x-2 gap-y-1">
                 <TableButton action={Update} size="small" />
+                <TableButton action={Rotate} size="small" />
                 <TableButton action={Delete} size="small" />
               </TableCell>
             </TableRow>

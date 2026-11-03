@@ -1,0 +1,71 @@
+name: Sync Immich upstream
+
+on:
+  schedule:
+    # Daily at 04:17 UTC. A non-round minute avoids the busiest Actions slots.
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-immich-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Merge immich-app/immich into fork
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out fork
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch official Immich upstream
+        run: |
+          git remote add upstream https://github.com/immich-app/immich.git
+          git fetch --prune upstream main
+
+      - name: Check whether an update is needed
+        id: check
+        shell: bash
+        run: |
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "Fork already contains the latest upstream commit."
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            echo "New upstream commits found."
+          fi
+
+      - name: Merge upstream
+        if: steps.check.outputs.needed == 'true'
+        shell: bash
+        run: |
+          # A conflict makes this step fail. Nothing is pushed in that case,
+          # so custom fork changes are never overwritten automatically.
+          git merge upstream/main --no-edit
+
+      - name: Push updated main
+        if: steps.check.outputs.needed == 'true'
+        run: git push origin HEAD:main
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Immich upstream sync" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.check.outputs.needed }}" = "true" ]; then
+            echo "Upstream contained new commits. If the merge/push steps are green, they are now in this fork." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Fork was already up to date with upstream." >> "$GITHUB_STEP_SUMMARY"
+          fi

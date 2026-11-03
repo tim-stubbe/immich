@@ -3,7 +3,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { Redis } from 'ioredis';
 import { ServerOptions } from 'socket.io';
-import { ConfigRepository } from 'src/repositories/config.repository';
+import { ConfigRepository } from 'src/repositories/config.repository.js';
 
 export class WebSocketAdapter extends IoAdapter {
   constructor(private app: INestApplicationContext) {
@@ -15,7 +15,11 @@ export class WebSocketAdapter extends IoAdapter {
     const server = super.createIOServer(port, options);
     const pubClient = new Redis(redis);
     const subClient = pubClient.duplicate();
-    server.adapter(createAdapter(pubClient, subClient));
+    const isImmichSocket = !options?.path || options.path === '/api/socket.io';
+    const adapterOpts = {
+      key: isImmichSocket ? undefined : `socket.io` + options.path,
+    };
+    server.adapter(createAdapter(pubClient, subClient, adapterOpts));
     return server;
   }
 }

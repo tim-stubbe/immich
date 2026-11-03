@@ -1,27 +1,24 @@
 <script lang="ts">
-  import AlbumTableHeader from '$lib/components/album-page/AlbumsTableHeader.svelte';
-  import AlbumTableRow from '$lib/components/album-page/AlbumsTableRow.svelte';
-  import { AlbumGroupBy, albumViewSettings } from '$lib/stores/preferences.store';
+  import AlbumTableHeader from '#lib/components/album-page/AlbumsTableHeader.svelte';
+  import AlbumTableRow from '#lib/components/album-page/AlbumsTableRow.svelte';
+  import { AlbumGroupBy, albumViewSettings } from '#lib/stores/preferences.store.ts';
   import {
     isAlbumGroupCollapsed,
     sortOptionsMetadata,
     toggleAlbumGroupCollapsing,
     type AlbumGroup,
-  } from '$lib/utils/album-utils';
-  import type { ContextMenuPosition } from '$lib/utils/context-menu';
-  import type { AlbumResponseDto } from '@immich/sdk';
+  } from '#lib/utils/album-utils.ts';
   import { Icon } from '@immich/ui';
   import { mdiChevronRight } from '@mdi/js';
   import { t } from 'svelte-i18n';
   import { slide } from 'svelte/transition';
 
-  interface Props {
+  type Props = {
     groupedAlbums: AlbumGroup[];
     albumGroupOption?: string;
-    onShowContextMenu?: ((position: ContextMenuPosition, album: AlbumResponseDto) => unknown) | undefined;
-  }
+  };
 
-  let { groupedAlbums, albumGroupOption = AlbumGroupBy.None, onShowContextMenu }: Props = $props();
+  const { groupedAlbums, albumGroupOption = AlbumGroupBy.None }: Props = $props();
 </script>
 
 <table class="mt-2 w-full text-start">
@@ -37,13 +34,13 @@
   {#if albumGroupOption === AlbumGroupBy.None}
     <tbody class="block w-full overflow-y-auto rounded-md border dark:border-immich-dark-gray dark:text-immich-dark-fg">
       {#each groupedAlbums[0].albums as album (album.id)}
-        <AlbumTableRow {album} {onShowContextMenu} />
+        <AlbumTableRow {album} />
       {/each}
     </tbody>
   {:else}
     {#each groupedAlbums as albumGroup (albumGroup.id)}
-      {@const isCollapsed = isAlbumGroupCollapsed($albumViewSettings, albumGroup.id)}
-      {@const iconRotation = isCollapsed ? 'rotate-0' : 'rotate-90'}
+      {const isCollapsed = $derived(isAlbumGroupCollapsed($albumViewSettings, albumGroup.id))}
+      {const iconRotation = $derived(isCollapsed ? 'rotate-0' : 'rotate-90')}
       <tbody
         class="mt-4 block w-full overflow-y-auto rounded-md border dark:border-immich-dark-gray dark:text-immich-dark-fg"
       >
@@ -71,7 +68,7 @@
           transition:slide={{ duration: 300 }}
         >
           {#each albumGroup.albums as album (album.id)}
-            <AlbumTableRow {album} {onShowContextMenu} />
+            <AlbumTableRow {album} />
           {/each}
         </tbody>
       {/if}

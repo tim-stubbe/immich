@@ -1,21 +1,15 @@
 <script lang="ts">
-  import { authManager } from '$lib/managers/auth-manager.svelte';
-  import { forkUpdateManager } from '$lib/managers/fork-update-manager.svelte';
-  import { releaseManager } from '$lib/managers/release-manager.svelte';
-  import ServerAboutModal from '$lib/modals/ServerAboutModal.svelte';
-  import { locale } from '$lib/stores/preferences.store';
-  import { userInteraction } from '$lib/stores/user.svelte';
-  import { websocketStore } from '$lib/stores/websocket';
-  import { semverToName } from '$lib/utils';
-  import { requestServerInfo } from '$lib/utils/auth';
-  import {
-    getAboutInfo,
-    getVersionHistory,
-    type ReleaseEventV1,
-    type ServerAboutResponseDto,
-    type ServerVersionHistoryResponseDto,
-  } from '@immich/sdk';
+  import { authManager } from '#lib/managers/auth-manager.svelte.ts';
+  import { forkUpdateManager } from '#lib/managers/fork-update-manager.svelte.ts';
+  import { releaseManager } from '#lib/managers/release-manager.svelte.ts';
+  import ServerAboutModal from '#lib/modals/ServerAboutModal.svelte';
+  import { getAboutInfoQuery, getVersionHistoryQuery } from '#lib/queries/server-info.query.ts';
+  import { locale } from '#lib/stores/preferences.store.ts';
+  import { websocketStore } from '#lib/stores/websocket.ts';
+  import { semverToName } from '#lib/utils.ts';
+  import { type ReleaseEventV1 } from '@immich/sdk';
   import { Icon, modalManager, Text } from '@immich/ui';
+  import { createQuery } from '@tanstack/svelte-query';
   import { mdiAlert, mdiNewBox } from '@mdi/js';
   import { DateTime } from 'luxon';
   import { onDestroy, onMount } from 'svelte';
@@ -23,32 +17,27 @@
 
   const { serverVersion, connected } = websocketStore;
 
-  let info: ServerAboutResponseDto | undefined = $state();
-  let versions: ServerVersionHistoryResponseDto[] = $state([]);
+  const queries = {
+    about: createQuery(getAboutInfoQuery),
+    history: createQuery(getVersionHistoryQuery),
+  };
 
   let forkPollHandle: ReturnType<typeof setInterval> | undefined;
 
-  onMount(async () => {
+  onMount(() => {
     forkPollHandle = forkUpdateManager.startPolling();
-
-    if (userInteraction.aboutInfo && userInteraction.versions && $serverVersion) {
-      info = userInteraction.aboutInfo;
-      versions = userInteraction.versions;
-      return;
-    }
-    await requestServerInfo();
-    [info, versions] = await Promise.all([getAboutInfo(), getVersionHistory()]);
-    userInteraction.aboutInfo = info;
-    userInteraction.versions = versions;
   });
 
   onDestroy(() => {
     clearInterval(forkPollHandle);
   });
 
+  const info = $derived(queries.about.data);
+  const versions = $derived(queries.history.data ?? []);
   let isMain = $derived(info?.sourceRef === 'main' && info.repository === 'immich-app/immich');
   let version = $derived($serverVersion ? semverToName($serverVersion) : null);
-  let buildAge = $derived(info?.buildDate ? DateTime.fromISO(info.buildDate).toRelative({ locale: $locale }) : null);
+  let buildDate = $derived((info as (typeof info & { buildDate?: string }) | undefined)?.buildDate);
+  let buildAge = $derived(buildDate ? DateTime.fromISO(buildDate).toRelative({ locale: $locale }) : null);
   let isForkOutdated = $derived(
     info?.sourceCommit && forkUpdateManager.value && info.sourceCommit !== forkUpdateManager.value.latestCommit,
   );

@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
   import { page } from '$app/state';
-  import UserPageLayout from '$lib/components/layouts/UserPageLayout.svelte';
-  import { featureFlagsManager } from '$lib/managers/feature-flags-manager.svelte';
-  import { lang } from '$lib/stores/preferences.store';
-  import { getAssetPlaybackUrl, getAssetUrl } from '$lib/utils';
-  import { handleError } from '$lib/utils/handle-error';
+  import UserPageLayout from '#lib/components/layouts/UserPageLayout.svelte';
+  import { featureFlagsManager } from '#lib/managers/feature-flags-manager.svelte.ts';
+  import { lang } from '#lib/stores/preferences.store.ts';
+  import { getAssetPlaybackUrl, getAssetUrl } from '#lib/utils.ts';
+  import { handleError } from '#lib/utils/handle-error.ts';
   import {
     AssetOrder,
     AssetTypeEnum,
@@ -66,7 +65,7 @@
   };
 
   const saveReviewed = () => {
-    if (browser) {
+    if (typeof window !== 'undefined') {
       localStorage.setItem(storageKey, JSON.stringify([...reviewed]));
     }
   };
@@ -288,7 +287,7 @@
 
   $effect(() => {
     const nextAsset = queue[1];
-    if (browser && nextAsset) {
+    if (typeof window !== 'undefined' && nextAsset) {
       const image = new Image();
       image.src = getAssetUrl({ asset: nextAsset }) ?? '';
     }

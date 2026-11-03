@@ -1,7 +1,7 @@
+import { Route } from '#lib/route.ts';
+import { authenticate } from '#lib/utils/auth.ts';
+import { getFormatter } from '#lib/utils/i18n.ts';
 import { getAuthStatus } from '@immich/sdk';
-import { Route } from '$lib/route';
-import { authenticate } from '$lib/utils/auth';
-import { getFormatter } from '$lib/utils/i18n';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ url }) => {
@@ -16,6 +16,6 @@ export const load = (async ({ url }) => {
       title: $t('pin_verification'),
     },
     hasPinCode: !!pinCode,
-    continueUrl: url.searchParams.get('continue') || Route.locked(),
+    continueUrl: Route.continue(url.searchParams.get('continue'), Route.locked()),
   };
 }) satisfies PageLoad;

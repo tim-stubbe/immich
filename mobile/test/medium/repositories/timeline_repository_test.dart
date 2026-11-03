@@ -7,7 +7,7 @@ import '../repository_context.dart';
 
 void main() {
   late MediumRepositoryContext ctx;
-  late DriftTimelineRepository sut;
+  late TimelineRepository sut;
 
   setUpAll(() async {
     await initializeDateFormatting();
@@ -15,7 +15,7 @@ void main() {
 
   setUp(() {
     ctx = MediumRepositoryContext();
-    sut = DriftTimelineRepository(ctx.db);
+    sut = TimelineRepository(ctx.db);
   });
 
   tearDown(() async {
@@ -46,9 +46,79 @@ void main() {
       expect((assets.first as RemoteAsset).id, remoteAsset.id);
       expect([localAsset1.id, localAsset2.id], contains((assets.first as RemoteAsset).localId));
     });
+
+    test('orders shifted album assets in both directions and keeps normal asset order (#28852)', () async {
+      final user = await ctx.newUser();
+      final descendingAlbum = await ctx.newRemoteAlbum(ownerId: user.id, order: .desc);
+      final ascendingAlbum = await ctx.newRemoteAlbum(ownerId: user.id, order: .asc);
+      final shiftedLater = await ctx.newRemoteAsset(
+        ownerId: user.id,
+        createdAt: DateTime.utc(2024, 9, 2, 12),
+        localDateTime: DateTime.utc(2024, 9, 3, 12),
+      );
+      final shiftedEarlier = await ctx.newRemoteAsset(
+        ownerId: user.id,
+        createdAt: DateTime.utc(2024, 9, 3, 12),
+        localDateTime: DateTime.utc(2024, 9, 2, 12),
+      );
+      final normalLater = await ctx.newRemoteAsset(
+        ownerId: user.id,
+        createdAt: DateTime.utc(2024, 9, 4, 14),
+        localDateTime: DateTime.utc(2024, 9, 4, 14),
+      );
+      final normalEarlier = await ctx.newRemoteAsset(
+        ownerId: user.id,
+        createdAt: DateTime.utc(2024, 9, 4, 12),
+        localDateTime: DateTime.utc(2024, 9, 4, 12),
+      );
+      final seeded = [shiftedLater, shiftedEarlier, normalLater, normalEarlier];
+      for (final asset in seeded) {
+        await ctx.newRemoteAlbumAsset(albumId: descendingAlbum.id, assetId: asset.id);
+        await ctx.newRemoteAlbumAsset(albumId: ascendingAlbum.id, assetId: asset.id);
+      }
+
+      final descending = sut.remoteAlbum(descendingAlbum.id, .day);
+      final ascending = sut.remoteAlbum(ascendingAlbum.id, .day);
+
+      final buckets = await descending.bucketSource().first;
+      expect(buckets, hasLength(3));
+      expect(buckets.map((bucket) => bucket.assetCount), [2, 1, 1]);
+
+      final descendingAssets = await descending.assetSource(0, 10);
+      expect(descendingAssets.map((asset) => (asset as RemoteAsset).id), [
+        normalLater.id,
+        normalEarlier.id,
+        shiftedLater.id,
+        shiftedEarlier.id,
+      ]);
+
+      final ascendingAssets = await ascending.assetSource(0, 10);
+      expect(ascendingAssets.map((asset) => (asset as RemoteAsset).id), [
+        shiftedEarlier.id,
+        shiftedLater.id,
+        normalEarlier.id,
+        normalLater.id,
+      ]);
+    });
   });
 
   group('person assets', () {
+    test('includes partner assets even when the partner is not shown in the timeline', () async {
+      final user = await ctx.newUser();
+      final partner = await ctx.newUser();
+      final stranger = await ctx.newUser();
+      await ctx.newPartner(sharedById: partner.id, sharedWithId: user.id, inTimeline: false);
+
+      final person = await ctx.newPerson(ownerId: user.id);
+      final partnerAsset = await ctx.newRemoteAsset(ownerId: partner.id);
+      final strangerAsset = await ctx.newRemoteAsset(ownerId: stranger.id);
+      await ctx.newFace(assetId: partnerAsset.id, personId: person.id);
+      await ctx.newFace(assetId: strangerAsset.id, personId: person.id);
+
+      final assets = await sut.person(user.id, person.id, .day).assetSource(0, 10);
+      expect(assets.map((a) => (a as RemoteAsset).id), [partnerAsset.id]);
+    });
+
     test('does not duplicate an asset that has multiple face records for the same person', () async {
       // Regression check for #26723: an INNER JOIN between remote_asset_entity and asset_face_entity
       // fanned out one asset into N rows when N face records pointed at the same (asset, person) pair
@@ -68,6 +138,31 @@ void main() {
       final assets = await query.assetSource(0, 10);
       expect(assets, hasLength(1));
       expect((assets.first as RemoteAsset).id, asset.id);
+    });
+
+    test('orders shifted person assets by effective date (#28852)', () async {
+      final user = await ctx.newUser();
+      final person = await ctx.newPerson(ownerId: user.id);
+      final shiftedLater = await ctx.newRemoteAsset(
+        ownerId: user.id,
+        createdAt: DateTime.utc(2024, 9, 2, 12),
+        localDateTime: DateTime.utc(2024, 9, 3, 12),
+      );
+      final shiftedEarlier = await ctx.newRemoteAsset(
+        ownerId: user.id,
+        createdAt: DateTime.utc(2024, 9, 3, 12),
+        localDateTime: DateTime.utc(2024, 9, 2, 12),
+      );
+      await ctx.newFace(assetId: shiftedLater.id, personId: person.id);
+      await ctx.newFace(assetId: shiftedEarlier.id, personId: person.id);
+
+      final query = sut.person(user.id, person.id, .day);
+
+      final buckets = await query.bucketSource().first;
+      expect(buckets, hasLength(2));
+
+      final assets = await query.assetSource(0, 10);
+      expect(assets.map((asset) => (asset as RemoteAsset).id), [shiftedLater.id, shiftedEarlier.id]);
     });
   });
 

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import BrokenAsset from '$lib/components/assets/BrokenAsset.svelte';
-  import Image from '$lib/components/Image.svelte';
+  import BrokenAsset from '#lib/components/assets/BrokenAsset.svelte';
+  import Image from '#lib/components/Image.svelte';
   import { Icon } from '@immich/ui';
   import { mdiEyeOffOutline } from '@mdi/js';
   import type { ClassValue } from 'svelte/elements';
@@ -64,11 +64,10 @@
     border && 'border-3 border-immich-dark-primary/80 hover:border-immich-primary',
     'transition-shadow duration-150',
     highlighted && 'ring-4 ring-immich-primary dark:ring-immich-dark-primary',
+    hidden && 'grayscale-50 opacity-50',
   ]);
 
-  let style = $derived(
-    `width: ${widthStyle}; height: ${heightStyle ?? ''}; filter: ${hidden ? 'grayscale(50%)' : 'none'}; opacity: ${hidden ? '0.5' : '1'};`,
-  );
+  let style = $derived(`width: ${widthStyle}; height: ${heightStyle ?? ''};`);
 </script>
 
 {#if errored}

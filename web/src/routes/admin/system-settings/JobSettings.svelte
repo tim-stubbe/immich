@@ -1,16 +1,20 @@
 <script lang="ts">
-  import SettingButtonsRow from '$lib/components/shared-components/settings/SystemConfigButtonRow.svelte';
-  import SettingInputField from '$lib/components/shared-components/settings/SettingInputField.svelte';
-  import { SettingInputFieldType } from '$lib/constants';
-  import { featureFlagsManager } from '$lib/managers/feature-flags-manager.svelte';
-  import { systemConfigManager } from '$lib/managers/system-config-manager.svelte';
-  import { QueueName, type SystemConfigJobDto } from '@immich/sdk';
+  import { createPreloadedQuery } from '#lib/queries/client.ts';
+  import { getAdminConfigQuery } from '#lib/queries/config-admin.query.ts';
+  import { cloneDeep } from 'lodash-es';
+  import SettingButtonsRow from '#lib/components/shared-components/settings/SystemConfigButtonRow.svelte';
+  import SettingInputField from '#lib/components/shared-components/settings/SettingInputField.svelte';
+  import { SettingInputFieldType } from '#lib/constants.ts';
+  import { featureFlagsManager } from '#lib/managers/feature-flags-manager.svelte.ts';
+  import { QueueName, type AdminConfigJobDto } from '@immich/sdk';
   import { t } from 'svelte-i18n';
   import { fade } from 'svelte/transition';
 
+  const query = createPreloadedQuery(getAdminConfigQuery);
+  const config = $derived(query.data);
+
   const disabled = $derived(featureFlagsManager.value.configFile);
-  const config = $derived(systemConfigManager.value);
-  let configToEdit = $state(systemConfigManager.cloneValue());
+  let configToEdit = $state(cloneDeep(config));
 
   const queueNames = [
     QueueName.ThumbnailGeneration,
@@ -26,7 +30,7 @@
     QueueName.Ocr,
   ];
 
-  function isSystemConfigJobDto(jobName: string): jobName is keyof SystemConfigJobDto {
+  function isSystemConfigJobDto(jobName: string): jobName is keyof AdminConfigJobDto {
     return Object.hasOwn(configToEdit.job, jobName);
   }
 

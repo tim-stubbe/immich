@@ -1,19 +1,19 @@
 import { Body, Controller, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Endpoint, HistoryBuilder } from 'src/decorators';
-import { AuthDto } from 'src/dtos/auth.dto';
+import type { AuthDto } from 'src/dtos/auth.dto.js';
+import { Endpoint, HistoryBuilder } from 'src/decorators.js';
+import { SystemConfigSmtpDto } from 'src/dtos/config.dto.js';
 import {
   NotificationCreateDto,
   NotificationDto,
   TemplateDto,
   TemplateResponseDto,
   TestEmailResponseDto,
-} from 'src/dtos/notification.dto';
-import { SystemConfigSmtpDto } from 'src/dtos/system-config.dto';
-import { ApiTag } from 'src/enum';
-import { Auth, Authenticated } from 'src/middleware/auth.guard';
-import { EmailTemplate } from 'src/repositories/email.repository';
-import { NotificationAdminService } from 'src/services/notification-admin.service';
+} from 'src/dtos/notification.dto.js';
+import { ApiTag, Permission } from 'src/enum.js';
+import { Auth, Authenticated } from 'src/middleware/auth.guard.js';
+import { EmailTemplate } from 'src/repositories/email.repository.js';
+import { NotificationAdminService } from 'src/services/notification-admin.service.js';
 
 @ApiTags(ApiTag.NotificationsAdmin)
 @Controller('admin/notifications')
@@ -21,7 +21,7 @@ export class NotificationAdminController {
   constructor(private service: NotificationAdminService) {}
 
   @Post()
-  @Authenticated({ admin: true })
+  @Authenticated({ permission: Permission.NotificationCreate, admin: true })
   @Endpoint({
     summary: 'Create a notification',
     description: 'Create a new notification for a specific user.',
@@ -32,7 +32,7 @@ export class NotificationAdminController {
   }
 
   @Post('test-email')
-  @Authenticated({ admin: true })
+  @Authenticated({ permission: Permission.NotificationCreate, admin: true })
   @HttpCode(HttpStatus.OK)
   @Endpoint({
     summary: 'Send test email',
@@ -44,7 +44,7 @@ export class NotificationAdminController {
   }
 
   @Post('templates/:name')
-  @Authenticated({ admin: true })
+  @Authenticated({ permission: Permission.NotificationCreate, admin: true })
   @HttpCode(HttpStatus.OK)
   @Endpoint({
     summary: 'Render email template',

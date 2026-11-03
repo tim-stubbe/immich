@@ -1,9 +1,9 @@
+import type { CommonLayoutOptions, CommonPosition } from '#lib/utils/layout-utils.ts';
+import { getJustifiedLayoutFromAssets } from '#lib/utils/layout-utils.ts';
+import { getOrderingDate, plainDateTimeCompare } from '#lib/utils/timeline-util.ts';
+import { TUNABLES } from '#lib/utils/tunables.ts';
 import { AssetOrder, AssetOrderBy } from '@immich/sdk';
 import { SvelteSet } from 'svelte/reactivity';
-import type { CommonLayoutOptions, CommonPosition } from '$lib/utils/layout-utils';
-import { getJustifiedLayoutFromAssets } from '$lib/utils/layout-utils';
-import { getOrderingDate, plainDateTimeCompare } from '$lib/utils/timeline-util';
-import { TUNABLES } from '$lib/utils/tunables';
 import type { TimelineMonth } from './timeline-month.svelte';
 import type { Direction, MoveAsset, TimelineAsset } from './types';
 import { ViewerAsset } from './viewer-asset.svelte';
@@ -150,6 +150,7 @@ export class TimelineDay {
       }
       unprocessedIds.delete(assetId);
       processedIds.add(assetId);
+      // eslint-disable-next-line unicorn/prefer-continue
       if (remove || this.timelineMonth.timelineManager.isExcluded(asset)) {
         this.viewerAssets.splice(index, 1);
         changedGeometry = true;

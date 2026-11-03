@@ -1,6 +1,6 @@
 <script lang="ts">
-  import ServerAboutItem from '$lib/components/ServerAboutItem.svelte';
-  import { locale } from '$lib/stores/preferences.store';
+  import ServerAboutItem from '#lib/components/ServerAboutItem.svelte';
+  import { locale } from '#lib/stores/preferences.store.ts';
   import { type ServerAboutResponseDto, type ServerVersionHistoryResponseDto } from '@immich/sdk';
   import { Alert, Label, Modal, ModalBody } from '@immich/ui';
   import { DateTime } from 'luxon';
@@ -8,7 +8,7 @@
 
   interface Props {
     onClose: () => void;
-    info: ServerAboutResponseDto;
+    info: ServerAboutResponseDto & { buildDate?: string };
     versions: ServerVersionHistoryResponseDto[];
   }
 
@@ -82,7 +82,7 @@
         <Label size="small" color="primary" for="version-history">{$t('version_history')}</Label>
         <ul id="version-history" class="list-none">
           {#each versions.slice(0, 5) as item (item.id)}
-            {@const createdAt = DateTime.fromISO(item.createdAt)}
+            {const createdAt = DateTime.fromISO(item.createdAt)}
             <li>
               <span
                 class="pb-2 text-xs immich-form-label"

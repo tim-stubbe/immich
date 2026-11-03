@@ -1,26 +1,22 @@
 import 'dart:async';
 
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:native_video_player/native_video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+part 'video_player_provider.freezed.dart';
+
 enum VideoPlaybackStatus { paused, playing, buffering, completed }
 
-class VideoPlayerState {
-  final Duration position;
-  final Duration duration;
-  final VideoPlaybackStatus status;
-
-  const VideoPlayerState({required this.position, required this.duration, required this.status});
-
-  VideoPlayerState copyWith({Duration? position, Duration? duration, VideoPlaybackStatus? status}) {
-    return VideoPlayerState(
-      position: position ?? this.position,
-      duration: duration ?? this.duration,
-      status: status ?? this.status,
-    );
-  }
+@freezed
+abstract class VideoPlayerState with _$VideoPlayerState {
+  const factory VideoPlayerState({
+    required Duration position,
+    required Duration duration,
+    required VideoPlaybackStatus status,
+  }) = _VideoPlayerState;
 }
 
 const _defaultState = VideoPlayerState(
@@ -193,10 +189,21 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
       return;
     }
 
+    var status = _mapStatus(playbackInfo.status);
+    if (playbackInfo.status == PlaybackStatus.stopped && state.status != VideoPlaybackStatus.completed) {
+      // Never played yet, not completed = we show the resume button instead of the replay button
+      status = VideoPlaybackStatus.paused;
+    }
+
+    if (status != VideoPlaybackStatus.playing) {
+      // No playback = no loading indicator needed
+      _bufferingTimer?.cancel();
+    }
+
     state = state.copyWith(
       position: Duration(milliseconds: playbackInfo.position),
       duration: Duration(milliseconds: videoInfo.duration),
-      status: _mapStatus(playbackInfo.status),
+      status: status,
     );
   }
 
@@ -221,7 +228,7 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
 
     state = state.copyWith(
       position: position,
-      status: state.status == VideoPlaybackStatus.buffering ? VideoPlaybackStatus.playing : null,
+      status: state.status == VideoPlaybackStatus.buffering ? VideoPlaybackStatus.playing : state.status,
     );
   }
 

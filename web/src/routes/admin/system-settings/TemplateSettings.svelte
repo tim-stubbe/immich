@@ -1,21 +1,24 @@
 <script lang="ts">
-  import SettingAccordion from '$lib/components/shared-components/settings/SettingAccordion.svelte';
+  import SettingAccordion from '#lib/components/shared-components/settings/SettingAccordion.svelte';
   import SettingTextarea from './SettingTextarea.svelte';
-  import FormatMessage from '$lib/elements/FormatMessage.svelte';
-  import { systemConfigManager } from '$lib/managers/system-config-manager.svelte';
-  import EmailTemplatePreviewModal from '$lib/modals/EmailTemplatePreviewModal.svelte';
-  import { handleError } from '$lib/utils/handle-error';
-  import { type SystemConfigDto, type SystemConfigTemplateEmailsDto, getNotificationTemplateAdmin } from '@immich/sdk';
+  import FormatMessage from '#lib/elements/FormatMessage.svelte';
+  import { createPreloadedQuery } from '#lib/queries/client.ts';
+  import { getAdminConfigQuery } from '#lib/queries/config-admin.query.ts';
+  import EmailTemplatePreviewModal from '#lib/modals/EmailTemplatePreviewModal.svelte';
+  import { handleError } from '#lib/utils/handle-error.ts';
+  import { type AdminConfigDto, type AdminConfigTemplateEmailsDto, getNotificationTemplateAdmin } from '@immich/sdk';
   import { Button, Icon, LoadingSpinner, modalManager } from '@immich/ui';
   import { mdiEyeOutline } from '@mdi/js';
   import { t } from 'svelte-i18n';
   import { fade } from 'svelte/transition';
 
   interface Props {
-    config: SystemConfigDto;
+    config: AdminConfigDto;
   }
 
   let { config = $bindable() }: Props = $props();
+
+  const query = createPreloadedQuery(getAdminConfigQuery);
 
   let loadingPreview = $state(false);
 
@@ -52,8 +55,8 @@
     },
   ];
 
-  const isEdited = (templateKey: keyof SystemConfigTemplateEmailsDto) =>
-    config.templates.email[templateKey] !== systemConfigManager.value.templates.email[templateKey];
+  const isEdited = (templateKey: keyof AdminConfigTemplateEmailsDto) =>
+    config.templates.email[templateKey] !== query.data.templates.email[templateKey];
 
   const onsubmit = (event: Event) => {
     event.preventDefault();

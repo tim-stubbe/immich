@@ -1,3 +1,5 @@
+import { getAssetResolution, getFileSize } from '#lib/utils/asset-utils.ts';
+import { fromISODateTime, fromISODateTimeUTC } from '#lib/utils/timeline-util.ts';
 import type { AssetResponseDto } from '@immich/sdk';
 import {
   mdiBrightness6,
@@ -24,8 +26,6 @@ import {
 } from '@mdi/js';
 import { DateTime } from 'luxon';
 import type { MessageFormatter } from 'svelte-i18n';
-import { getAssetResolution, getFileSize } from '$lib/utils/asset-utils';
-import { fromISODateTime, fromISODateTimeUTC } from '$lib/utils/timeline-util';
 
 const truncateMiddle = (path: string, maxLength = 50): string => {
   if (path.length <= maxLength) {
@@ -59,6 +59,7 @@ type MetadataFieldDefinition = {
   titleKey: string;
   keys: readonly string[];
   render: (asset: AssetResponseDto, $t: MessageFormatter, locale: string | undefined) => string;
+  tooltip?: (asset: AssetResponseDto, $t: MessageFormatter) => string;
 };
 
 const metadataFields = [
@@ -73,6 +74,7 @@ const metadataFields = [
     titleKey: 'path',
     keys: ['originalPath'],
     render: (asset, $t) => truncateMiddle(asset.originalPath) || $t('unknown'),
+    tooltip: (asset, $t) => $t('full_path', { values: { path: asset.originalPath } }),
   },
   {
     icon: mdiWeightKilogram,
@@ -148,9 +150,9 @@ const metadataFields = [
     keys: ['latitude', 'longitude'],
     render: (asset, $t) =>
       // eslint-disable-next-line eqeqeq
-      asset.exifInfo?.latitude != null && asset.exifInfo?.longitude != null
-        ? `${asset.exifInfo.latitude.toFixed(4)}, ${asset.exifInfo.longitude.toFixed(4)}`
-        : $t('unknown'),
+      asset.exifInfo?.latitude == null || asset.exifInfo?.longitude == null
+        ? $t('unknown')
+        : `${asset.exifInfo.latitude.toFixed(4)}, ${asset.exifInfo.longitude.toFixed(4)}`,
   },
   {
     icon: mdiCameraOutline,
@@ -233,11 +235,12 @@ export const countDifferingMetadataItems = (differing: DifferingMetadataFields):
   metadataFields.filter(({ keys }) => keys.some((k) => differing[k as MetadataFieldKey])).length;
 
 export const getAllMetadataItems = (asset: AssetResponseDto, $t: MessageFormatter, locale: string | undefined) =>
-  metadataFields.map(({ icon, titleKey, keys, render }) => ({
-    icon,
-    title: $t(titleKey),
-    render: render(asset, $t, locale),
-    keys,
+  metadataFields.map((field) => ({
+    icon: field.icon,
+    title: $t(field.titleKey),
+    render: field.render(asset, $t, locale),
+    tooltip: 'tooltip' in field ? field.tooltip(asset, $t) : undefined,
+    keys: field.keys,
   }));
 
 const normalizeForComparison = (key: MetadataFieldKey, value: unknown): unknown => {
@@ -290,15 +293,7 @@ export const computeDifferingMetadataFields = (assets: AssetResponseDto[]): Diff
   const diffs: DifferingMetadataFields = {};
 
   for (const key of metadataKeys) {
-    const uniqueValues = new Set<unknown>();
-
-    for (const asset of assets) {
-      const value = getValueForAsset(asset, key);
-      if (value !== undefined && value !== null) {
-        uniqueValues.add(normalizeForComparison(key, value));
-      }
-    }
-
+    const uniqueValues = new Set(assets.map((asset) => normalizeForComparison(key, getValueForAsset(asset, key))));
     diffs[key] = uniqueValues.size > 1;
   }
 

@@ -1,8 +1,8 @@
+import 'package:immich_mobile/data/server/api_repository.dart';
 import 'package:immich_mobile/domain/models/asset/base_asset.model.dart' hide AssetVisibility;
-import 'package:immich_mobile/infrastructure/repositories/api.repository.dart';
 import 'package:immich_mobile/models/search/search_filter.model.dart';
 import 'package:immich_mobile/utils/option.dart';
-import 'package:openapi/api.dart';
+import 'package:openapi/api.dart' hide SearchFilter;
 
 class SearchApiRepository extends ApiRepository {
   final SearchApi _api;
@@ -16,6 +16,10 @@ class SearchApiRepository extends ApiRepository {
     } else if (filter.mediaType.index == AssetType.video.index) {
       type = AssetTypeEnum.VIDEO;
     }
+
+    final tagIds = filter.tags == null
+        ? const Optional<List<String>>.absent()
+        : Optional.present(filter.tags!.map((tag) => tag.id).toList());
 
     if ((filter.context != null && filter.context!.isNotEmpty) ||
         (filter.assetId != null && filter.assetId!.isNotEmpty)) {
@@ -42,7 +46,7 @@ class SearchApiRepository extends ApiRepository {
           isFavorite: filter.display.isFavorite ? const Optional.present(true) : const Optional.absent(),
           isNotInAlbum: filter.display.isNotInAlbum ? const Optional.present(true) : const Optional.absent(),
           personIds: Optional.present(filter.people.map((e) => e.id).toList()),
-          tagIds: filter.tagIds == null ? const Optional.absent() : Optional.present(filter.tagIds),
+          tagIds: tagIds,
           type: type == null ? const Optional.absent() : Optional.present(type),
           page: Optional.present(page),
           size: const Optional.present(100),
@@ -73,7 +77,7 @@ class SearchApiRepository extends ApiRepository {
         isFavorite: filter.display.isFavorite ? const Optional.present(true) : const Optional.absent(),
         isNotInAlbum: filter.display.isNotInAlbum ? const Optional.present(true) : const Optional.absent(),
         personIds: Optional.present(filter.people.map((e) => e.id).toList()),
-        tagIds: filter.tagIds == null ? const Optional.absent() : Optional.present(filter.tagIds),
+        tagIds: tagIds,
         type: type == null ? const Optional.absent() : Optional.present(type),
         page: Optional.present(page),
         size: const Optional.present(1000),

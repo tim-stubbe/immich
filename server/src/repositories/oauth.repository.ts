@@ -1,39 +1,46 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { createRemoteJWKSet, jwtVerify, JWTVerifyGetKey } from 'jose';
+import { JWTVerifyGetKey, createRemoteJWKSet, jwtVerify } from 'jose';
 import {
+  ClientSecretBasic,
+  ClientSecretPost,
+  None,
+  type UserInfoResponse,
   allowInsecureRequests as allowInsecureRequestsExecute,
   authorizationCodeGrant,
   buildAuthorizationUrl,
   calculatePKCECodeChallenge,
-  ClientSecretBasic,
-  ClientSecretPost,
   discovery,
   fetchUserInfo,
-  None,
   randomPKCECodeVerifier,
   randomState,
   skipSubjectCheck,
-  type UserInfoResponse,
 } from 'openid-client';
-import { OAuthTokenEndpointAuthMethod } from 'src/enum';
-import { LoggingRepository } from 'src/repositories/logging.repository';
+import { SystemConfig } from 'src/dtos/config.dto.js';
+import { OAuthTokenEndpointAuthMethod } from 'src/enum.js';
+import { LoggingRepository } from 'src/repositories/logging.repository.js';
 
-export type OAuthConfig = {
-  clientId: string;
-  clientSecret?: string;
-  issuerUrl: string;
-  endSessionEndpoint: string;
-  mobileOverrideEnabled: boolean;
-  mobileRedirectUri: string;
-  profileSigningAlgorithm: string;
-  prompt: string;
-  scope: string;
-  signingAlgorithm: string;
-  tokenEndpointAuthMethod: OAuthTokenEndpointAuthMethod;
-  timeout: number;
-  allowInsecureRequests: boolean;
-};
-export type OAuthProfile = UserInfoResponse;
+export type OAuthConfig = Pick<
+  SystemConfig['oauth'],
+  | 'defaultStorageQuota'
+  | 'storageLabelClaim'
+  | 'storageQuotaClaim'
+  | 'roleClaim'
+  | 'clientId'
+  | 'clientSecret'
+  | 'issuerUrl'
+  | 'accountManagementUrl'
+  | 'endSessionEndpoint'
+  | 'mobileOverrideEnabled'
+  | 'mobileRedirectUri'
+  | 'profileSigningAlgorithm'
+  | 'prompt'
+  | 'scope'
+  | 'signingAlgorithm'
+  | 'tokenEndpointAuthMethod'
+  | 'timeout'
+  | 'allowInsecureRequests'
+>;
+export type OAuthRawProfile = UserInfoResponse;
 
 @Injectable()
 export class OAuthRepository {
@@ -83,23 +90,23 @@ export class OAuthRepository {
     url: string,
     expectedState: string,
     codeVerifier: string,
-  ): Promise<{ profile: OAuthProfile; sid?: string; idToken?: string }> {
+  ): Promise<{ rawProfile: OAuthRawProfile; sid?: string; idToken?: string }> {
     const client = await this.getClient(config);
     const pkceCodeVerifier = client.serverMetadata().supportsPKCE() ? codeVerifier : undefined;
 
     try {
       const tokens = await authorizationCodeGrant(client, new URL(url), { expectedState, pkceCodeVerifier });
 
-      let profile: OAuthProfile;
+      let rawProfile: OAuthRawProfile;
       const tokenClaims = tokens.claims();
       if (tokenClaims && 'email' in tokenClaims) {
         this.logger.debug('Using ID token claims instead of userinfo endpoint');
-        profile = tokenClaims as OAuthProfile;
+        rawProfile = tokenClaims;
       } else {
-        profile = await fetchUserInfo(client, tokens.access_token, skipSubjectCheck);
+        rawProfile = await fetchUserInfo(client, tokens.access_token, skipSubjectCheck);
       }
 
-      if (!profile.sub) {
+      if (!rawProfile.sub) {
         throw new Error('Unexpected profile response, no `sub`');
       }
 
@@ -111,7 +118,7 @@ export class OAuthRepository {
         }
       }
 
-      return { profile, sid, idToken: tokens.id_token };
+      return { rawProfile, sid, idToken: tokens.id_token };
     } catch (error: Error | any) {
       if (error.message.includes('unexpected JWT alg received')) {
         this.logger.warn(
@@ -122,8 +129,7 @@ export class OAuthRepository {
         );
       }
 
-      this.logger.error(`OAuth login failed: ${error.message}`);
-      this.logger.error(error);
+      this.logger.error('OAuth login failed', error);
 
       throw new Error('OAuth login failed', { cause: error });
     }
@@ -135,13 +141,10 @@ export class OAuthRepository {
       throw new Error(`Failed to fetch picture: ${response.statusText}`);
     }
 
-    return {
-      data: await response.arrayBuffer(),
-      contentType: response.headers.get('content-type'),
-    };
+    return response.arrayBuffer();
   }
 
-  private jwksClients: Map<string, JWTVerifyGetKey> = new Map(); // useful for caching and performnce
+  private jwksClients: Map<string, JWTVerifyGetKey> = new Map(); // useful for caching and performance
   async validateLogoutToken(config: OAuthConfig, logoutToken: string): Promise<{ sub?: string; sid?: string } | null> {
     const client = await this.getClient(config);
     const algorithm = client.clientMetadata().id_token_signed_response_alg ?? 'RS256';
@@ -222,7 +225,7 @@ export class OAuthRepository {
         },
       );
     } catch (error: any | AggregateError) {
-      this.logger.error(`Error in OAuth discovery: ${error}`, error?.stack, error?.errors);
+      this.logger.error('Error in OAuth discovery', error);
       throw new InternalServerErrorException(`Error in OAuth discovery: ${error}`, { cause: error });
     }
   }

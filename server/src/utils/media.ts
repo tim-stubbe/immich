@@ -1,16 +1,4 @@
-import { AUDIO_ENCODER, AV1_LEVELS, CodecLevel, H264_LEVELS, HEVC_LEVELS, SUPPORTED_HWA_CODECS } from 'src/constants';
-import { SystemConfigFFmpegDto } from 'src/dtos/system-config.dto';
-import {
-  ColorMatrix,
-  ColorPrimaries,
-  ColorTransfer,
-  CQMode,
-  ToneMapping,
-  TranscodeHardwareAcceleration,
-  TranscodeTarget,
-  VideoCodec,
-} from 'src/enum';
-import {
+import type {
   AudioStreamInfo,
   BitrateDistribution,
   HlsCommandOptions,
@@ -20,12 +8,32 @@ import {
   VideoInterfaces,
   VideoStreamInfo,
   VideoTuning,
-} from 'src/types';
+} from 'src/types.js';
+import {
+  AUDIO_ENCODER,
+  AV1_LEVELS,
+  CodecLevel,
+  H264_LEVELS,
+  HEVC_LEVELS,
+  SUPPORTED_HWA_CODECS,
+} from 'src/constants.js';
+import { ConfigFFmpegDto } from 'src/dtos/config.dto.js';
+import {
+  CQMode,
+  ColorMatrix,
+  ColorPrimaries,
+  ColorTransfer,
+  ToneMapping,
+  TranscodeHardwareAcceleration,
+  TranscodeTarget,
+  VideoCodec,
+} from 'src/enum.js';
 
 export const isVideoRotated = (videoStream: VideoStreamInfo): boolean => Math.abs(videoStream.rotation) === 90;
 
+// whether the video is portrait once its rotation is applied
 export const isVideoVertical = (videoStream: VideoStreamInfo): boolean =>
-  videoStream.height > videoStream.width || isVideoRotated(videoStream);
+  videoStream.height > videoStream.width !== isVideoRotated(videoStream);
 
 export const getOutputSize = (videoStream: VideoStreamInfo, targetRes: number) => {
   const factor = Math.max(videoStream.height, videoStream.width) / Math.min(videoStream.height, videoStream.width);
@@ -62,18 +70,19 @@ export const getCodecString = (codec: VideoCodec, width: number, height: number,
 export class BaseConfig implements VideoCodecSWConfig {
   readonly presets = ['veryslow', 'slower', 'slow', 'medium', 'fast', 'faster', 'veryfast', 'superfast', 'ultrafast'];
   protected constructor(
-    protected config: SystemConfigFFmpegDto,
+    protected config: ConfigFFmpegDto,
+    // eslint-disable-next-line unicorn/no-object-as-default-parameter
     protected tune: VideoTuning = { strictGop: false, lowLatency: false },
   ) {}
 
-  static create(config: SystemConfigFFmpegDto, interfaces: VideoInterfaces, tune?: VideoTuning) {
+  static create(config: ConfigFFmpegDto, interfaces: VideoInterfaces, tune?: VideoTuning) {
     if (config.accel === TranscodeHardwareAcceleration.Disabled) {
       return BaseConfig.getSWCodecConfig(config, tune);
     }
     return BaseConfig.getHWCodecConfig(config, interfaces, tune);
   }
 
-  private static getSWCodecConfig(config: SystemConfigFFmpegDto, tune?: VideoTuning): VideoCodecSWConfig {
+  private static getSWCodecConfig(config: ConfigFFmpegDto, tune?: VideoTuning): VideoCodecSWConfig {
     switch (config.targetVideoCodec) {
       case VideoCodec.H264: {
         return new H264Config(config, tune);
@@ -93,7 +102,7 @@ export class BaseConfig implements VideoCodecSWConfig {
     }
   }
 
-  private static getHWCodecConfig(config: SystemConfigFFmpegDto, interfaces: VideoInterfaces, tune?: VideoTuning) {
+  private static getHWCodecConfig(config: ConfigFFmpegDto, interfaces: VideoInterfaces, tune?: VideoTuning) {
     if (!SUPPORTED_HWA_CODECS[config.accel].includes(config.targetVideoCodec)) {
       throw new Error(
         `${config.accel.toUpperCase()} acceleration does not support codec '${config.targetVideoCodec.toUpperCase()}'. Supported codecs: ${SUPPORTED_HWA_CODECS[config.accel]}`,
@@ -357,7 +366,12 @@ export class BaseConfig implements VideoCodecSWConfig {
 
   getScaling(videoStream: VideoStreamInfo, mult = 2) {
     const targetResolution = this.getTargetResolution(videoStream);
-    return isVideoVertical(videoStream) ? `${targetResolution}:-${mult}` : `-${mult}:${targetResolution}`;
+    return this.isFrameVertical(videoStream) ? `${targetResolution}:-${mult}` : `-${mult}:${targetResolution}`;
+  }
+
+  // frames reach the filters already rotated, unless decoding with -noautorotate
+  isFrameVertical(videoStream: VideoStreamInfo) {
+    return isVideoVertical(videoStream);
   }
 
   isBitrateConstrained() {
@@ -385,13 +399,13 @@ export class BaseConfig implements VideoCodecSWConfig {
     };
   }
 
-  getToneMapping(videoStream: VideoStreamInfo) {
+  getToneMapping(videoStream: VideoStreamInfo, format = 'yuv420p') {
     if (!this.shouldToneMap(videoStream)) {
       return [];
     }
 
     const { primaries, transfer, matrix } = this.getColors();
-    const options = `tonemapx=tonemap=${this.config.tonemap}:desat=0:p=${primaries}:t=${transfer}:m=${matrix}:r=pc:peak=100:format=yuv420p`;
+    const options = `tonemapx=tonemap=${this.config.tonemap}:desat=0:p=${primaries}:t=${transfer}:m=${matrix}:r=pc:peak=100:format=${format}`;
     return [options];
   }
 
@@ -424,7 +438,7 @@ export class BaseHWConfig extends BaseConfig {
   protected device: string;
 
   constructor(
-    protected config: SystemConfigFFmpegDto,
+    protected config: ConfigFFmpegDto,
     protected interfaces: VideoInterfaces,
     tune?: VideoTuning,
   ) {
@@ -471,7 +485,7 @@ export class BaseHWConfig extends BaseConfig {
 }
 
 export class ThumbnailConfig extends BaseConfig {
-  static create(config: SystemConfigFFmpegDto): VideoCodecSWConfig {
+  static create(config: ConfigFFmpegDto): VideoCodecSWConfig {
     return new ThumbnailConfig(config);
   }
 
@@ -734,6 +748,11 @@ export class NvencHwDecodeConfig extends NvencSwDecodeConfig {
     return ['-hwaccel', 'cuda', '-hwaccel_output_format', 'cuda', '-noautorotate', ...this.getInputThreadOptions()];
   }
 
+  // -noautorotate keeps frames in their stored orientation
+  isFrameVertical(videoStream: VideoStreamInfo) {
+    return videoStream.height > videoStream.width;
+  }
+
   getFilterOptions(videoStream: VideoStreamInfo) {
     const options = [];
     const tonemapOptions = this.getToneMapping(videoStream);
@@ -795,6 +814,15 @@ export class QsvSwDecodeConfig extends BaseHWConfig {
     options.push('hwupload=extra_hw_frames=64');
     if (this.shouldScale(videoStream)) {
       options.push(`scale_qsv=${this.getScaling(videoStream)}:mode=hq:format=nv12`);
+    }
+    return options;
+  }
+
+  getToneMapping(videoStream: VideoStreamInfo) {
+    // Output nv12 when tone-mapping instead of having ffmpeg convert from yuv420p
+    const options = super.getToneMapping(videoStream, 'nv12');
+    if (options.length === 0 && videoStream.pixelFormat !== 'nv12') {
+      options.push('format=nv12');
     }
     return options;
   }
@@ -871,6 +899,11 @@ export class QsvHwDecodeConfig extends QsvSwDecodeConfig {
     ];
   }
 
+  // -noautorotate keeps frames in their stored orientation
+  isFrameVertical(videoStream: VideoStreamInfo) {
+    return videoStream.height > videoStream.width;
+  }
+
   getFilterOptions(videoStream: VideoStreamInfo) {
     const options = [];
     const tonemapOptions = this.getToneMapping(videoStream);
@@ -925,6 +958,15 @@ export class VaapiSwDecodeConfig extends BaseHWConfig {
       options.push(`scale_vaapi=${this.getScaling(videoStream)}:mode=hq:out_range=pc:format=nv12`);
     }
 
+    return options;
+  }
+
+  getToneMapping(videoStream: VideoStreamInfo) {
+    // some drivers (e.g. Mesa radeonsi on AMD) reject yuv420p surfaces and FFmpeg doesn't auto-convert for VAAPI
+    const options = super.getToneMapping(videoStream, 'nv12');
+    if (options.length === 0 && videoStream.pixelFormat !== 'nv12') {
+      options.push('format=nv12');
+    }
     return options;
   }
 
@@ -991,6 +1033,11 @@ export class VaapiHwDecodeConfig extends VaapiSwDecodeConfig {
       this.device,
       ...this.getInputThreadOptions(),
     ];
+  }
+
+  // -noautorotate keeps frames in their stored orientation
+  isFrameVertical(videoStream: VideoStreamInfo) {
+    return videoStream.height > videoStream.width;
   }
 
   getFilterOptions(videoStream: VideoStreamInfo) {
@@ -1078,6 +1125,11 @@ export class RkmppSwDecodeConfig extends BaseHWConfig {
 export class RkmppHwDecodeConfig extends RkmppSwDecodeConfig {
   getBaseInputOptions() {
     return ['-hwaccel', 'rkmpp', '-hwaccel_output_format', 'drm_prime', '-afbc', 'rga', '-noautorotate'];
+  }
+
+  // -noautorotate keeps frames in their stored orientation
+  isFrameVertical(videoStream: VideoStreamInfo) {
+    return videoStream.height > videoStream.width;
   }
 
   getFilterOptions(videoStream: VideoStreamInfo) {

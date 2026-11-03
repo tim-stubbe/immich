@@ -1,14 +1,15 @@
 import { Kysely } from 'kysely';
-import { LoggingRepository } from 'src/repositories/logging.repository';
-import { UserRepository } from 'src/repositories/user.repository';
-import { DB } from 'src/schema';
-import { AuthAdminService } from 'src/services/auth-admin.service';
-import { newMediumService } from 'test/medium.factory';
-import { factory } from 'test/small.factory';
-import { getKyselyDB } from 'test/utils';
+import { LoggingRepository } from 'src/repositories/logging.repository.js';
+import { UserRepository } from 'src/repositories/user.repository.js';
+import { DB } from 'src/schema/index.js';
+import { AuthAdminService } from 'src/services/auth-admin.service.js';
+import { newMediumService } from 'test/medium.factory.js';
+import { factory } from 'test/small.factory.js';
+import { getKyselyDB } from 'test/utils.js';
 
 let defaultDatabase: Kysely<DB>;
 
+// eslint-disable-next-line unicorn/no-unnecessary-parameters
 const setup = (db?: Kysely<DB>) => {
   return newMediumService(AuthAdminService, {
     database: db || defaultDatabase,
@@ -31,7 +32,7 @@ describe(AuthAdminService.name, () => {
 
       await expect(sut.unlinkAll(auth)).resolves.toBeUndefined();
       await expect(userRepo.get(user.id, { withDeleted: true })).resolves.toEqual(
-        expect.objectContaining({ oauthId: '' }),
+        expect.objectContaining({ oauthId: null }),
       );
     });
 
@@ -43,7 +44,7 @@ describe(AuthAdminService.name, () => {
 
       await expect(sut.unlinkAll(auth)).resolves.toBeUndefined();
       await expect(userRepo.get(user.id, { withDeleted: true })).resolves.toEqual(
-        expect.objectContaining({ oauthId: '' }),
+        expect.objectContaining({ oauthId: null }),
       );
     });
 
@@ -56,10 +57,10 @@ describe(AuthAdminService.name, () => {
 
       await expect(sut.unlinkAll(auth)).resolves.toBeUndefined();
       await expect(userRepo.get(user1.id, { withDeleted: true })).resolves.toEqual(
-        expect.objectContaining({ oauthId: '' }),
+        expect.objectContaining({ oauthId: null }),
       );
       await expect(userRepo.get(user2.id, { withDeleted: true })).resolves.toEqual(
-        expect.objectContaining({ oauthId: '' }),
+        expect.objectContaining({ oauthId: null }),
       );
     });
   });

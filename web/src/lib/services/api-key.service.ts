@@ -1,19 +1,13 @@
-import {
-  createApiKey,
-  deleteApiKey,
-  updateApiKey,
-  type ApiKeyCreateDto,
-  type ApiKeyResponseDto,
-  type ApiKeyUpdateDto,
-} from '@immich/sdk';
+import ApiKeyCreateModal from '#lib/modals/ApiKeyCreateModal.svelte';
+import ApiKeySecretModal from '#lib/modals/ApiKeySecretModal.svelte';
+import ApiKeyUpdateModal from '#lib/modals/ApiKeyUpdateModal.svelte';
+import { deleteApiKeyMutation, rotateApiKeyMutation } from '#lib/queries/api-key.query.ts';
+import { executeMutation } from '#lib/queries/client.ts';
+import { getFormatter } from '#lib/utils/i18n.ts';
+import type { ApiKeyResponseDto } from '@immich/sdk';
 import { modalManager, toastManager, type ActionItem } from '@immich/ui';
-import { mdiPencilOutline, mdiPlus, mdiTrashCanOutline } from '@mdi/js';
+import { mdiAutorenew, mdiPencilOutline, mdiPlus, mdiTrashCanOutline } from '@mdi/js';
 import type { MessageFormatter } from 'svelte-i18n';
-import { eventManager } from '$lib/managers/event-manager.svelte';
-import ApiKeyCreateModal from '$lib/modals/ApiKeyCreateModal.svelte';
-import ApiKeyUpdateModal from '$lib/modals/ApiKeyUpdateModal.svelte';
-import { handleError } from '$lib/utils/handle-error';
-import { getFormatter } from '$lib/utils/i18n';
 
 export const getApiKeysActions = ($t: MessageFormatter) => {
   const Create: ActionItem = {
@@ -32,62 +26,35 @@ export const getApiKeyActions = ($t: MessageFormatter, apiKey: ApiKeyResponseDto
     onAction: () => modalManager.show(ApiKeyUpdateModal, { apiKey }),
   };
 
+  const Rotate: ActionItem = {
+    title: $t('rotate_key'),
+    icon: mdiAutorenew,
+    onAction: () => handleRotateApiKey(apiKey),
+  };
+
   const Delete: ActionItem = {
     title: $t('delete_key'),
     icon: mdiTrashCanOutline,
     onAction: () => handleDeleteApiKey(apiKey),
   };
 
-  return { Update, Delete };
+  return { Update, Rotate, Delete };
 };
 
-export const handleCreateApiKey = async (dto: ApiKeyCreateDto) => {
+const handleRotateApiKey = async (apiKey: ApiKeyResponseDto) => {
   const $t = await getFormatter();
 
-  try {
-    if (!dto.name) {
-      toastManager.warning($t('api_key_empty'));
-      return;
-    }
-
-    if (dto.permissions.length === 0) {
-      toastManager.warning($t('permission_empty'));
-      return;
-    }
-
-    const response = await createApiKey({ apiKeyCreateDto: dto });
-    eventManager.emit('ApiKeyCreate', response.apiKey);
-
-    return response;
-  } catch (error) {
-    handleError(error, $t('errors.unable_to_create_api_key'));
-  }
-};
-
-export const handleUpdateApiKey = async (apiKey: { id: string }, dto: ApiKeyUpdateDto) => {
-  const $t = await getFormatter();
-
-  if (!dto.name) {
-    toastManager.warning($t('api_key_empty'));
+  const confirmed = await modalManager.showDialog({ prompt: $t('rotate_api_key_prompt') });
+  if (!confirmed) {
     return;
   }
 
-  if (dto.permissions && dto.permissions.length === 0) {
-    toastManager.warning($t('permission_empty'));
-    return;
-  }
-
-  try {
-    const response = await updateApiKey({ id: apiKey.id, apiKeyUpdateDto: dto });
-    eventManager.emit('ApiKeyUpdate', response);
-    toastManager.primary($t('saved_api_key'));
-    return true;
-  } catch (error) {
-    handleError(error, $t('errors.unable_to_save_api_key'));
-  }
+  await executeMutation(rotateApiKeyMutation, [{ id: apiKey.id }], {
+    onSuccess: ({ secret }) => void modalManager.show(ApiKeySecretModal, { secret }),
+  });
 };
 
-export const handleDeleteApiKey = async (apiKey: ApiKeyResponseDto) => {
+const handleDeleteApiKey = async (apiKey: ApiKeyResponseDto) => {
   const $t = await getFormatter();
 
   const confirmed = await modalManager.showDialog({ prompt: $t('delete_api_key_prompt') });
@@ -95,11 +62,7 @@ export const handleDeleteApiKey = async (apiKey: ApiKeyResponseDto) => {
     return;
   }
 
-  try {
-    await deleteApiKey({ id: apiKey.id });
-    eventManager.emit('ApiKeyDelete', apiKey);
-    toastManager.primary($t('removed_api_key', { values: { name: apiKey.name } }));
-  } catch (error) {
-    handleError(error, $t('errors.unable_to_remove_api_key'));
-  }
+  await executeMutation(deleteApiKeyMutation, [{ id: apiKey.id }], {
+    onSuccess: () => toastManager.primary($t('removed_api_key', { values: { name: apiKey.name } })),
+  });
 };

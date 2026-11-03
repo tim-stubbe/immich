@@ -9,7 +9,7 @@ import {
   TranscodeHardwareAcceleration,
   VectorIndex,
   VideoCodec,
-} from 'src/enum';
+} from 'src/enum.js';
 
 export const IMMICH_SERVER_START = 'Immich Server is listening';
 
@@ -49,8 +49,7 @@ export const LOGIN_DUMMY_HASH = '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQR
 
 export const IWorker = 'IWorker';
 
-// eslint-disable-next-line unicorn/prefer-module
-const basePath = dirname(__filename);
+const basePath = dirname(import.meta.filename);
 const packageFile = join(basePath, '..', 'package.json');
 const { version } = JSON.parse(readFileSync(packageFile, 'utf8'));
 export const serverVersion = new SemVer(version);
@@ -61,9 +60,12 @@ export const reverseGeocodeMaxDistance = 25_000;
 export const MOBILE_REDIRECT = 'app.immich:///oauth-callback';
 export const LOGIN_URL = '/auth/login?autoLaunch=0';
 
-export const excludePaths = ['/.well-known/immich', '/custom.css', '/favicon.ico'];
+export const excludePaths = ['/.well-known/immich', '/.well-known/webauthn', '/custom.css', '/favicon.ico'];
 
 export const FACE_THUMBNAIL_SIZE = 250;
+
+// The fastest JPEG XL tier skips smoothing filters, which also keeps small thumbnails sharper
+export const THUMBNAIL_DECODING_TIER = 4;
 
 type ModelInfo = { dimSize: number };
 export const CLIP_MODEL_INFO: Record<string, ModelInfo> = {
@@ -148,8 +150,15 @@ export const endpointTags: Record<ApiTag, string> = {
   [ApiTag.Albums]: 'An album is a collection of assets that can be shared with other users or via shared links.',
   [ApiTag.ApiKeys]: 'An api key can be used to programmatically access the Immich API.',
   [ApiTag.Assets]: 'An asset is an image or video that has been uploaded to Immich.',
+  [ApiTag.AssetFiles]: 'An asset file is a file associated with an asset, including edited versions, thumbnails, etc.',
   [ApiTag.Authentication]: 'Endpoints related to user authentication, including OAuth.',
   [ApiTag.AuthenticationAdmin]: 'Administrative endpoints related to authentication.',
+  [ApiTag.Backups]: 'FUTO Backups.',
+  [ApiTag.ClusterGroups]:
+    'A cluster group is a set of users whose faces are clustered together, so that a person can be shared between them.',
+  [ApiTag.ConfigUser]: 'The system configuration properties that are visible to logged in users.',
+  [ApiTag.ConfigAdmin]: 'Endpoints to view and modify the full system configuration.',
+  [ApiTag.ConfigPublic]: 'The system configuration properties that are visible to everyone.',
   [ApiTag.DatabaseBackups]: 'Manage backups of the Immich database.',
   [ApiTag.Deprecated]: 'Deprecated endpoints that are planned for removal in the next major release.',
   [ApiTag.Download]: 'Endpoints for downloading assets or collections of assets.',
@@ -170,6 +179,7 @@ export const endpointTags: Record<ApiTag, string> = {
     'A notification is a specialized message sent to users to inform them of important events. Currently, these notifications are only shown in the Immich web application.',
   [ApiTag.NotificationsAdmin]: 'Notification administrative endpoints.',
   [ApiTag.Partners]: 'A partner is a link with another user that allows sharing of assets between two users.',
+  [ApiTag.Passkeys]: 'A passkey is a WebAuthn credential that can be used to login without a password.',
   [ApiTag.People]:
     'A person is a collection of faces, which can be favorited and named. A person can also be merged into another person. People are automatically created via the face recognition job.',
   [ApiTag.Plugins]:

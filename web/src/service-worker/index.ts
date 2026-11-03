@@ -1,7 +1,3 @@
-/// <reference types="@sveltejs/kit" />
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext" />
-/// <reference lib="webworker" />
 import { installMessageListener } from './messaging';
 import { handleFetch as handleAssetFetch } from './request';
 
@@ -17,8 +13,11 @@ const handleInstall = (event: ExtendableEvent) => {
   event.waitUntil(sw.skipWaiting());
 };
 
+const isImageTagRequest = (event: FetchEvent) =>
+  event.request.method === 'GET' && event.request.destination === 'image';
+
 const handleFetch = (event: FetchEvent): void => {
-  if (event.request.method !== 'GET') {
+  if (!isImageTagRequest(event)) {
     return;
   }
 
